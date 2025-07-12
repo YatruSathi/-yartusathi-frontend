@@ -1,17 +1,30 @@
 import { createBrowserRouter } from "react-router";
 import { Login } from "./pages/login";
 import { Home } from "./pages/home";
+import { Dashboard } from "./layout/dashboard";
 
 export default createBrowserRouter([
-    {
-        path: "/",
-        element: <Login/>
-    },
-    {
-        path: "/home",
-        element: <Home/>
-    },
-])
-
-
-
+  {
+    path: "/",
+    element: <Login />,
+  },
+  {
+    path: "/",
+    element: <Dashboard />, // Parent route with sidebar and app bar
+    children: [
+      {
+        path: "home",
+        element: <Home />,
+      },
+      // You can add more nested routes here:
+      // {
+      //   path: "users",
+      //   element: <Users />,
+      // },
+      // {
+      //   path: "settings",
+      //   element: <Settings />,
+      // },
+    ],
+  },
+]);
