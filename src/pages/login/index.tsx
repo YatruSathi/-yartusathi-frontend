@@ -68,7 +68,7 @@ export const Login: React.FC = () => {
             type="password"
             margin="normal"
           />
-          <StyledButton onClick={()=>navigate('/home')} fullWidth variant="contained">
+          <StyledButton onClick={() => navigate('/home')} fullWidth variant="contained">
             Login
           </StyledButton>
         </Box>
