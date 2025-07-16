@@ -65,8 +65,9 @@ export const Dashboard: React.FC = () => {
       <List>
         {[
           { text: "Home", icon: <HomeIcon />, path: "/home" },
-          { text: "Profile", icon: <PeopleIcon />, path: "/userProfile" },
           { text: "Events", icon: <EventIcon />, path: "/events" },
+          { text: "Profile", icon: <PeopleIcon />, path: "/user-profile" },
+
         ].map((item) => (
           <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
             <ListItemButton

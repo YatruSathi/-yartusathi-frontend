@@ -1,4 +1,3 @@
-// src/pages/Home.tsx
 import React from "react";
 import {
   Box,
@@ -7,17 +6,14 @@ import {
   InputAdornment,
   IconButton,
   Chip,
-  Card,
-  CardContent,
-  CardMedia,
   Grid,
-  Button,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import Image01 from "../../assets/imgs/image-01.jpg";
 import Image02 from "../../assets/imgs/image-02.jpg";
 import Image03 from "../../assets/imgs/image-03.jpg";
 import Image04 from "../../assets/imgs/image-04.jpg";
+import { EventCard } from "./components/event-card";
 
 const heroImage = Image01;
 
@@ -142,28 +138,13 @@ export const Home: React.FC = () => {
         </Typography>
         <Grid container spacing={2}>
           {recentEvents.map((event) => (
-            <Grid item xs={12} sm={6} md={4} key={event.id}>
-              <Card sx={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <CardMedia
-                  component="img"
-                  height="180"
-                  image={event.image}
-                  alt={event.title}
-                  sx={{ objectFit: "cover" }}
-                />
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Typography variant="subtitle1" fontWeight="medium">
-                    {event.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" mb={2}>
-                    {event.description}
-                  </Typography>
-                  <Button variant="contained" size="small" fullWidth>
-                    View Details
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
+            <EventCard
+              id={event.id}
+              title={event.title}
+              description={event.description}
+              image={event.image}
+              onViewDetails={() => console.log('on details is cliked')}
+            />
           ))}
         </Grid>
       </Box>

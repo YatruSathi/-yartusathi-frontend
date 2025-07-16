@@ -3,8 +3,9 @@ import { Login } from "./pages/login";
 import { Home } from "./pages/home";
 import { Dashboard } from "./layout/dashboard";
 import { ProfilePage } from "./pages/profile/profile-page"
+import { Events } from "./pages/events/events";
 
-export default createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: "/",
     element: <Login />,
@@ -18,18 +19,15 @@ export default createBrowserRouter([
         element: <Home />,
       },
       {
-        path: "userProfile",
+        path: "events",
+        element: <Events />
+      },
+      {
+        path: "user-profile",
         element: <ProfilePage />,
       },
-      // You can add more nested routes here:
-      // {
-      //   path: "users",
-      //   element: <Users />,
-      // },
-      // {
-      //   path: "settings",
-      //   element: <Settings />,
-      // },
     ],
   },
 ]);
+
+export default router;
