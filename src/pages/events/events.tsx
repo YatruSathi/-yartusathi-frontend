@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, TextField, Box } from "@mui/material";
+import { Grid, TextField, Box, Button } from "@mui/material";
 import { EventCard } from "../home/components/event-card";
 import everestImg from "../../assets/imgs/Everest.jpg";
 import pokharaImg from "../../assets/imgs/Pokhara.jpg";
@@ -59,14 +59,25 @@ export function Events() {
 
   return (
     <Box sx={{ p: 3 }}>
-      <TextField
-        label="Search Events"
-        variant="outlined"
-        fullWidth
-        value={search}
-        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
-        sx={{ mb: 3 }}
-      />
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+        <TextField
+          label="Search Events"
+          variant="outlined"
+          value={search}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+          sx={{ flex: 1, mr: 2 }}
+        />
+        <Box sx={{ height: '100%' }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate('/events/create')}
+            sx={{ height: '56px', borderRadius: 1, boxShadow: 'none', textTransform: 'none', fontWeight: 500 }}
+          >
+            Create Event
+          </Button>
+        </Box>
+      </Box>
       <Grid container spacing={3}>
         {filteredEvents.length > 0 ? (
           filteredEvents.map(event => (
