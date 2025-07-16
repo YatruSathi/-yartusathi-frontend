@@ -4,6 +4,7 @@ import { Home } from "./pages/home";
 import { Dashboard } from "./layout/dashboard";
 import { ProfilePage } from "./pages/profile/profile-page"
 import { Events } from "./pages/events/events";
+import EventDetails from "./pages/events/event-details";
 
 const router = createBrowserRouter([
   {
@@ -21,6 +22,10 @@ const router = createBrowserRouter([
       {
         path: "events",
         element: <Events />
+      },
+      {
+        path: "events/:id",
+        element: <EventDetails />
       },
       {
         path: "user-profile",

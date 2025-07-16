@@ -7,9 +7,11 @@ import kathmanduImg from "../../assets/imgs/Kathmandu.jpg";
 import lumbiniImg from "../../assets/imgs/Lumbini .jpg";
 import manangImg from "../../assets/imgs/Manang.jpg";
 import bikeImg from "../../assets/imgs/image-01.jpg";
+import { useNavigate } from "react-router";
 
 export function Events() {
   const [search, setSearch] = useState("");
+  const navigate = useNavigate()
   // Mock event data
   const mockEvents = [
     {
@@ -74,7 +76,7 @@ export function Events() {
               image={event.image}
               title={event.title}
               description={event.description}
-              onViewDetails={() => { }}
+              onViewDetails={(id) => navigate(`/events/${id}`)}
             />
           ))
         ) : (
