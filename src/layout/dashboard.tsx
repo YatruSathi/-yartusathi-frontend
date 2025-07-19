@@ -18,6 +18,8 @@ import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from "@mui/icons-material/Menu";
 import PeopleIcon from "@mui/icons-material/People";
 import EventIcon from '@mui/icons-material/Event';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Outlet, useNavigate } from "react-router";
 import { appConfig } from "../app-config";
 
@@ -66,8 +68,9 @@ export const Dashboard: React.FC = () => {
         {[
           { text: "Home", icon: <HomeIcon />, path: "/home" },
           { text: "Events", icon: <EventIcon />, path: "/events" },
+          { text: "Favorite", icon: <FavoriteIcon color="error" />, path: "/favorite" },
+          { text: "Notifications", icon: <NotificationsIcon color="primary" />, path: "/notifications" },
           { text: "Profile", icon: <PeopleIcon />, path: "/user-profile" },
-
         ].map((item) => (
           <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
             <ListItemButton
