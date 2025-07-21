@@ -49,7 +49,7 @@ export const ProfilePage: React.FC = () => {
 
             {/* Profile Info */}
             <Typography variant="h5" fontWeight="bold">
-                John Doe
+                Kriti Upadhyay
             </Typography>
             <Typography color="text.secondary" mb={2}>
                 Adventure Traveler | Content Creator

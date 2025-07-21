@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { Grid, TextField, Box, Button } from "@mui/material";
+import { Grid, TextField, Box, Button, IconButton } from "@mui/material";
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import { EventCard } from "../home/components/event-card";
 import everestImg from "../../assets/imgs/Everest.jpg";
 import pokharaImg from "../../assets/imgs/Pokhara.jpg";
@@ -11,7 +12,8 @@ import { useNavigate } from "react-router";
 
 export function Events() {
   const [search, setSearch] = useState("");
-  const navigate = useNavigate()
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
+  const navigate = useNavigate();
   // Mock event data
   const mockEvents = [
     {
@@ -57,6 +59,12 @@ export function Events() {
     event.description.toLowerCase().includes(search.toLowerCase())
   );
 
+  const handleFavorite = (id: number) => {
+    setFavoriteIds(prev =>
+      prev.includes(id) ? prev.filter(favId => favId !== id) : [...prev, id]
+    );
+  };
+
   return (
     <Box sx={{ p: 3 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
@@ -88,6 +96,32 @@ export function Events() {
               title={event.title}
               description={event.description}
               onViewDetails={(id) => navigate(`/events/${id}`)}
+              actions={[
+                <Button
+                  key="view"
+                  variant="contained"
+                  color="primary"
+                  size="small"
+                  onClick={() => navigate(`/events/${event.id}`)}
+                >
+                  View Event
+                </Button>,
+                <IconButton
+                  key="favorite"
+                  sx={{
+                    background: '#fff',
+                    color: favoriteIds.includes(event.id) ? '#d32f2f' : '#022B3A',
+                    boxShadow: 2,
+                    ml: 2,
+                    '&:hover': {
+                      background: '#e6e6e3',
+                    },
+                  }}
+                  onClick={() => handleFavorite(event.id)}
+                >
+                  <FavoriteIcon />
+                </IconButton>
+              ]}
             />
           ))
         ) : (

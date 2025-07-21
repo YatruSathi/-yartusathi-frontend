@@ -1,5 +1,5 @@
 import React from "react";
-import { Grid, Card, CardMedia, CardContent, Typography, Button } from "@mui/material";
+import { Grid, Card, CardMedia, CardContent, Typography, Button, Box } from "@mui/material";
 
 interface RecentEventCardProps {
   id: string | number;
@@ -7,6 +7,7 @@ interface RecentEventCardProps {
   title: string;
   description: string;
   onViewDetails?: (id: string | number) => void;
+  actions?: React.ReactNode;
 }
 
 
@@ -20,7 +21,8 @@ export const EventCard: React.FC<RecentEventCardProps> = (
     image,
     title,
     description,
-    onViewDetails = () => { }
+    onViewDetails = () => { },
+    actions
   }) => (
   <Grid item xs={12} sm={6} md={4} key={id}>
     <Card
@@ -58,27 +60,38 @@ export const EventCard: React.FC<RecentEventCardProps> = (
         <Typography variant="body2" sx={{ color: 'rgba(255,255,252,0.85)', mb: 2, fontSize: 15 }}>
           {description}
         </Typography>
-        <Button
-          variant="contained"
-          size="medium"
-          fullWidth
-          onClick={() => onViewDetails(id)}
-          sx={{
-            mt: 2,
-            background: '#fffffc',
-            color: '#022B3A',
-            fontWeight: 600,
-            borderRadius: 2,
-            boxShadow: 2,
-            textTransform: 'none',
-            '&:hover': {
-              background: '#e6e6e3',
+        {actions ? (
+          <Box sx={{ mt: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            {/* Left side: View button (if present in actions) */}
+            {Array.isArray(actions) ? actions[0] : actions}
+            {/* Right side: Favorite button (if present in actions) */}
+            {Array.isArray(actions) && actions[1] ? (
+              <Box sx={{ ml: 'auto' }}>{actions[1]}</Box>
+            ) : null}
+          </Box>
+        ) : (
+          <Button
+            variant="contained"
+            size="medium"
+            fullWidth
+            onClick={() => onViewDetails(id)}
+            sx={{
+              mt: 2,
+              background: '#fffffc',
               color: '#022B3A',
-            },
-          }}
-        >
-          View Details
-        </Button>
+              fontWeight: 600,
+              borderRadius: 2,
+              boxShadow: 2,
+              textTransform: 'none',
+              '&:hover': {
+                background: '#e6e6e3',
+                color: '#022B3A',
+              },
+            }}
+          >
+            View Details
+          </Button>
+        )}
       </CardContent>
     </Card>
   </Grid>
