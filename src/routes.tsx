@@ -1,5 +1,4 @@
 import Favorite from './pages/home/favorite';
-import Notifications from './pages/home/notifications';
 import { createBrowserRouter } from "react-router";
 import { Login } from "./pages/login";
 import { Home } from "./pages/home";
@@ -41,10 +40,6 @@ const router = createBrowserRouter([
       {
         path: "/favorite",
         element: <Favorite />,
-      },
-      {
-        path: "/notifications",
-        element: <Notifications />,
       },
     ],
   },
