@@ -7,8 +7,6 @@ import Image03 from '../../assets/imgs/image-03.jpg';
 import Image04 from '../../assets/imgs/image-04.jpg';
 import { EventCard } from './components/event-card';
 
-const heroImage = Image01;
-
 const recentEvents = [
   {
     id: 1,

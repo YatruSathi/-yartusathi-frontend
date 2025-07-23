@@ -1,45 +1,50 @@
 import Favorite from './pages/home/favorite';
-import { createBrowserRouter } from "react-router";
-import { Login } from "./pages/login";
-import { Home } from "./pages/home";
-import { Dashboard } from "./layout/dashboard";
-import { ProfilePage } from "./pages/profile/profile-page"
-import { Events } from "./pages/events/events";
-import EventDetails from "./pages/events/event-details";
-import AddEventForm from "./pages/events/add-event-form";
+import { createBrowserRouter } from 'react-router';
+import { Login } from './pages/login';
+import { Home } from './pages/home';
+import { Dashboard } from './layout/dashboard';
+import { ProfilePage } from './pages/profile/profile-page';
+import { Events } from './pages/events/events';
+import EventDetails from './pages/events/event-details';
+import AddEventForm from './pages/events/add-event-form';
+import MyCreatedEvents from './pages/events/my-events';
 
 const router = createBrowserRouter([
   {
-    path: "/",
+    path: '/',
     element: <Login />,
   },
   {
-    path: "/",
+    path: '/',
     element: <Dashboard />, // Parent route with sidebar and app bar
     children: [
       {
-        path: "home",
+        path: 'home',
         element: <Home />,
       },
       {
-        path: "events",
-        element: <Events />
+        path: 'events',
+        element: <Events />,
       },
       {
-        path: "events/:id",
-        element: <EventDetails />
+        path: 'events/:id',
+        element: <EventDetails />,
       },
       {
-        path: "events/create",
-        element: <AddEventForm />
+        path: 'events/create',
+        element: <AddEventForm />,
       },
       {
-        path: "user-profile",
+        path: 'user-profile',
         element: <ProfilePage />,
       },
       {
-        path: "/favorite",
+        path: '/favorite',
         element: <Favorite />,
+      },
+      {
+        path: 'my-events',
+        element: <MyCreatedEvents />,
       },
     ],
   },

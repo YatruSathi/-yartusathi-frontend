@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   AppBar,
   Box,
@@ -13,22 +13,18 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
-import MenuIcon from "@mui/icons-material/Menu";
-import PeopleIcon from "@mui/icons-material/People";
+import MenuIcon from '@mui/icons-material/Menu';
+import PeopleIcon from '@mui/icons-material/People';
 import EventIcon from '@mui/icons-material/Event';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import { Outlet, useNavigate } from "react-router";
-import { appConfig } from "../app-config";
-
-
-
+import { Outlet, useNavigate } from 'react-router';
+import { appConfig } from '../app-config';
 
 const drawerWidth = 60; // Icon-only width
 const expandedDrawerWidth = 200; // Width when hovered
-
 
 export const Dashboard: React.FC = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
@@ -44,10 +40,10 @@ export const Dashboard: React.FC = () => {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={{
-        height: "100%",
-        transition: "width 0.2s",
+        height: '100%',
+        transition: 'width 0.2s',
         width: hovered ? expandedDrawerWidth : drawerWidth,
-        overflowX: "hidden",
+        overflowX: 'hidden',
       }}
     >
       <Toolbar>
@@ -56,8 +52,8 @@ export const Dashboard: React.FC = () => {
           noWrap
           sx={{
             opacity: hovered ? 1 : 0,
-            transition: "opacity 0.2s",
-            whiteSpace: "nowrap",
+            transition: 'opacity 0.2s',
+            whiteSpace: 'nowrap',
           }}
         >
           {appConfig.appName}
@@ -66,26 +62,31 @@ export const Dashboard: React.FC = () => {
       <Divider />
       <List>
         {[
-          { text: "Home", icon: <HomeIcon />, path: "/home" },
-          { text: "Events", icon: <EventIcon />, path: "/events" },
-          { text: "Favorite", icon: <FavoriteIcon color="error" />, path: "/favorite" },
-          { text: "Notifications", icon: <NotificationsIcon color="primary" />, path: "/notifications" },
-          { text: "Profile", icon: <PeopleIcon />, path: "/user-profile" },
-        ].map((item) => (
-          <ListItem key={item.text} disablePadding sx={{ display: "block" }}>
+          { text: 'Home', icon: <HomeIcon />, path: '/home' },
+          { text: 'Events', icon: <EventIcon />, path: '/events' },
+          { text: 'My Events', icon: <EventIcon color="primary" />, path: '/my-events' },
+          { text: 'Favorite', icon: <FavoriteIcon color="error" />, path: '/favorite' },
+          {
+            text: 'Notifications',
+            icon: <NotificationsIcon color="primary" />,
+            path: '/notifications',
+          },
+          { text: 'Profile', icon: <PeopleIcon />, path: '/user-profile' },
+        ].map(item => (
+          <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <ListItemButton
               onClick={() => navigate(item.path)}
               sx={{
                 minHeight: 48,
-                justifyContent: hovered ? "initial" : "center",
+                justifyContent: hovered ? 'initial' : 'center',
                 px: 2.5,
               }}
             >
               <ListItemIcon
                 sx={{
                   minWidth: 0,
-                  mr: hovered ? 2 : "auto",
-                  justifyContent: "center",
+                  mr: hovered ? 2 : 'auto',
+                  justifyContent: 'center',
                 }}
               >
                 {item.icon}
@@ -94,8 +95,8 @@ export const Dashboard: React.FC = () => {
                 primary={item.text}
                 sx={{
                   opacity: hovered ? 1 : 0,
-                  transition: "opacity 0.2s",
-                  whiteSpace: "nowrap",
+                  transition: 'opacity 0.2s',
+                  whiteSpace: 'nowrap',
                 }}
               />
             </ListItemButton>
@@ -106,14 +107,14 @@ export const Dashboard: React.FC = () => {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar
         position="fixed"
         sx={{
           width: { sm: `calc(100% - ${hovered ? expandedDrawerWidth : drawerWidth}px)` },
           ml: { sm: `${hovered ? expandedDrawerWidth : drawerWidth}px` },
-          transition: "width 0.2s, margin-left 0.2s",
+          transition: 'width 0.2s, margin-left 0.2s',
         }}
       >
         <Toolbar>
@@ -122,7 +123,7 @@ export const Dashboard: React.FC = () => {
             aria-label="open drawer"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: "none" } }}
+            sx={{ mr: 2, display: { sm: 'none' } }}
           >
             <MenuIcon />
           </IconButton>
@@ -141,9 +142,9 @@ export const Dashboard: React.FC = () => {
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }}
           sx={{
-            display: { xs: "block", sm: "none" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'block', sm: 'none' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: drawerWidth,
             },
           }}
@@ -153,12 +154,12 @@ export const Dashboard: React.FC = () => {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
+            display: { xs: 'none', sm: 'block' },
+            '& .MuiDrawer-paper': {
+              boxSizing: 'border-box',
               width: hovered ? expandedDrawerWidth : drawerWidth,
-              transition: "width 0.2s",
-              overflowX: "hidden",
+              transition: 'width 0.2s',
+              overflowX: 'hidden',
             },
           }}
           open
@@ -172,7 +173,7 @@ export const Dashboard: React.FC = () => {
           flexGrow: 1,
           p: 3,
           width: { sm: `calc(100% - ${hovered ? expandedDrawerWidth : drawerWidth}px)` },
-          transition: "width 0.2s",
+          transition: 'width 0.2s',
         }}
       >
         <Toolbar />
