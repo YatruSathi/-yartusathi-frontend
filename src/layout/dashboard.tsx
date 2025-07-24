@@ -16,8 +16,9 @@ import {
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
-import PeopleIcon from '@mui/icons-material/People';
+import PersonIcon from '@mui/icons-material/Person';
 import EventIcon from '@mui/icons-material/Event';
+import EventAvailableIcon from '@mui/icons-material/EventAvailable';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { Outlet, useNavigate } from 'react-router';
@@ -64,14 +65,8 @@ export const Dashboard: React.FC = () => {
         {[
           { text: 'Home', icon: <HomeIcon />, path: '/home' },
           { text: 'Events', icon: <EventIcon />, path: '/events' },
-          { text: 'My Events', icon: <EventIcon color="primary" />, path: '/my-events' },
+          { text: 'My Events', icon: <EventAvailableIcon color="primary" />, path: '/my-events' },
           { text: 'Favorite', icon: <FavoriteIcon color="error" />, path: '/favorite' },
-          {
-            text: 'Notifications',
-            icon: <NotificationsIcon color="primary" />,
-            path: '/notifications',
-          },
-          { text: 'Profile', icon: <PeopleIcon />, path: '/user-profile' },
         ].map(item => (
           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <ListItemButton
@@ -127,9 +122,27 @@ export const Dashboard: React.FC = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
+          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {appConfig.appName}
           </Typography>
+
+          {/* Right-side icons */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/notifications')}
+              sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}
+            >
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/user-profile')}
+              sx={{ '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.1)' } }}
+            >
+              <PersonIcon />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box
