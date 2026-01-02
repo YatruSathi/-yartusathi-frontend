@@ -1,0 +1,211 @@
+import React, { useState } from 'react';
+import { 
+  Grid, 
+  TextField, 
+  Box, 
+  Button, 
+  IconButton,
+  Typography,
+  Chip,
+} from '@mui/material';
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import SearchIcon from '@mui/icons-material/Search';
+import { EventCard } from '../home/components/event-card';
+import everestImg from '../../assets/imgs/Everest.jpg';
+import pokharaImg from '../../assets/imgs/Pokhara.jpg';
+import kathmanduImg from '../../assets/imgs/Kathmandu.jpg';
+import lumbiniImg from '../../assets/imgs/Lumbini .jpg';
+import manangImg from '../../assets/imgs/Manang.jpg';
+import bikeImg from '../../assets/imgs/image-01.jpg';
+import { useNavigate } from 'react-router-dom';
+
+export function Events() {
+  const [search, setSearch] = useState('');
+  const [favoriteIds] = useState<number[]>([]);
+  const navigate = useNavigate();
+
+  // Mock event data with categories
+  const mockEvents = [
+    {
+      id: 1,
+      image: everestImg,
+      title: 'Everest Base Camp Trek',
+      description: 'Experience the breathtaking views of Mount Everest and the Himalayas.',
+      categories: ['Trekking', 'Adventure'],
+      date: '2025-10-15',
+    },
+    {
+      id: 2,
+      image: pokharaImg,
+      title: 'Pokhara Adventure',
+      description: 'Enjoy the serene lakes and adventure sports in Pokhara.',
+      categories: ['Adventure', 'Cultural'],
+      date: '2025-09-20',
+    },
+    {
+      id: 3,
+      image: kathmanduImg,
+      title: 'Kathmandu Heritage Walk',
+      description: 'Explore the rich cultural heritage of Kathmandu valley.',
+      categories: ['Cultural', 'Religious'],
+      date: '2025-09-25',
+    },
+    {
+      id: 4,
+      image: lumbiniImg,
+      title: 'Lumbini Pilgrimage',
+      description: 'Visit the birthplace of Lord Buddha in Lumbini.',
+      categories: ['Religious', 'Cultural'],
+      date: '2025-10-01',
+    },
+    {
+      id: 5,
+      image: manangImg,
+      title: 'Manang Valley Exploration',
+      description: 'Discover the hidden gems of Manang valley.',
+      categories: ['Trekking', 'Adventure'],
+      date: '2025-10-10',
+    },
+    {
+      id: 6,
+      image: bikeImg,
+      title: 'Mountain Biking',
+      description: 'Thrilling mountain biking experience in the hills.',
+      categories: ['Adventure'],
+      date: '2025-09-30',
+    },
+  ];
+
+  // Filter events by search
+  const filteredEvents = mockEvents.filter(
+    event =>
+      event.title.toLowerCase().includes(search.toLowerCase()) ||
+      event.description.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleFavorite = () => {
+    navigate('/login');
+  };
+
+  return (
+    <Box sx={{ p: 3 }}>
+      <Box sx={{ maxWidth: 1200, mx: 'auto' }}>
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h4" sx={{ mb: 2, color: '#1a365d', fontWeight: 700 }}>
+            Discover Amazing Events in Nepal
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 3, color: '#4a5568' }}>
+            Find and explore unique events - from treks to cultural experiences
+          </Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
+            <TextField
+              fullWidth
+              placeholder="Search events..."
+              variant="outlined"
+              value={search}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <SearchIcon sx={{ color: '#718096', mr: 1 }} />
+                ),
+              }}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  backgroundColor: '#fff',
+                  '&:hover fieldset': {
+                    borderColor: '#2c5282',
+                  },
+                },
+              }}
+            />
+            <Button
+              variant="contained"
+              onClick={() => navigate('/login')}
+              sx={{
+                height: '56px',
+                minWidth: '200px',
+                borderRadius: 1,
+                boxShadow: 'none',
+                textTransform: 'none',
+                fontWeight: 600,
+                bgcolor: '#2c5282',
+                '&:hover': {
+                  bgcolor: '#1a365d',
+                },
+              }}
+            >
+              Login to Create Event
+            </Button>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 1, mb: 3, flexWrap: 'wrap' }}>
+            {['Trekking', 'Cultural', 'Adventure', 'Wildlife', 'Religious'].map((category) => (
+              <Chip
+                key={category}
+                label={category}
+                sx={{
+                  bgcolor: '#e2e8f0',
+                  color: '#2d3748',
+                  '&:hover': {
+                    bgcolor: '#cbd5e0',
+                    cursor: 'pointer',
+                  },
+                }}
+              />
+            ))}
+          </Box>
+        </Box>
+        <Grid container spacing={3}>
+          {filteredEvents.length > 0 ? (
+            filteredEvents.map(event => (
+              <EventCard
+                key={event.id}
+                id={event.id}
+                image={event.image}
+                title={event.title}
+                description={event.description}
+                onViewDetails={() => navigate(`/events/${event.id}`)}
+                actions={[
+                  <Button
+                    key="view"
+                    variant="contained"
+                    size="small"
+                    sx={{
+                      bgcolor: '#2c5282',
+                      '&:hover': {
+                        bgcolor: '#1a365d',
+                      },
+                    }}
+                    onClick={() => navigate(`/events/${event.id}`)}
+                  >
+                    View Details
+                  </Button>,
+                  <IconButton
+                    key="favorite"
+                    sx={{
+                      background: '#fff',
+                      color: favoriteIds.includes(event.id) ? '#d32f2f' : '#022B3A',
+                      boxShadow: 2,
+                      ml: 2,
+                      '&:hover': {
+                        background: '#e6e6e3',
+                      },
+                    }}
+                    onClick={handleFavorite}
+                  >
+                    <FavoriteIcon />
+                  </IconButton>,
+                ]}
+              />
+            ))
+          ) : (
+            <Grid item xs={12}>
+              <Typography variant="h6" sx={{ textAlign: 'center', color: '#4a5568' }}>
+                No events found matching your search.
+              </Typography>
+            </Grid>
+          )}
+        </Grid>
+      </Box>
+    </Box>
+  );
+}

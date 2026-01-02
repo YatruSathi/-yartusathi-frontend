@@ -4,6 +4,7 @@ import { Login } from './pages/login';
 import { Home } from './pages/home';
 import { Dashboard } from './layout/dashboard';
 import { ProfilePage } from './pages/profile/profile-page';
+import { Notification } from './pages/events/notifications';
 import { Events } from './pages/events/events';
 import EventDetails from './pages/events/event-details';
 import AddEventForm from './pages/events/add-event-form';
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: '/favorite',
         element: <Favorite />,
+      },
+      {
+        path: '/notification',
+        element: <Notification />,
       },
       {
         path: 'my-events',

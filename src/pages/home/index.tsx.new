@@ -1,0 +1,303 @@
+import React, { useState } from 'react';
+import {
+  Box,
+  Typography,
+  TextField,
+  InputAdornment,
+  IconButton,
+  Grid,
+  Alert,
+  Snackbar,
+  Container,
+  Paper,
+  Button,
+  Chip,
+} from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import ExploreIcon from '@mui/icons-material/Explore';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
+import StarIcon from '@mui/icons-material/Star';
+import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import Image01 from '../../assets/imgs/image-01.jpg';
+import Image02 from '../../assets/imgs/image-02.jpg';
+import Image03 from '../../assets/imgs/image-03.jpg';
+import Image04 from '../../assets/imgs/image-04.jpg';
+import { EventCard } from './components/event-card';
+import { MainLayout } from '../../layout/main-layout';
+
+interface Event {
+  id: number;
+  title: string;
+  image: string;
+  description: string;
+}
+
+const recentEvents: Event[] = [
+  {
+    id: 1,
+    title: 'Pokhara Cultural Tour',
+    image: Image01,
+    description: 'Experience the vibrant culture of Pokhara.',
+  },
+  {
+    id: 2,
+    title: 'Chitwan Safari Expedition',
+    image: Image02,
+    description: 'Wildlife adventure in Chitwan National Park.',
+  },
+  {
+    id: 3,
+    title: 'Lumbini Heritage Walk',
+    image: Image03,
+    description: 'Discover the birthplace of Buddha.',
+  },
+  {
+    id: 4,
+    title: 'Everest Base Camp Trek',
+    image: Image04,
+    description: 'Challenge yourself to reach the base camp.',
+  },
+];
+
+const categories = ['Trekking', 'Cultural', 'Adventure', 'Wildlife'];
+
+const HomePage = () => {
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    title: '',
+    message: '',
+  });
+
+  const handleViewDetails = (id: string | number) => {
+    const event = recentEvents.find(e => e.id === Number(id));
+    if (event) {
+      setSnackbar({
+        open: true,
+        title: event.title,
+        message: event.description,
+      });
+    }
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  return (
+    <MainLayout>
+      <Box sx={{ bgcolor: '#f7fafc', minHeight: '100vh', pb: 8 }}>
+        {/* Hero Section */}
+        <Box
+          sx={{
+            background: 'linear-gradient(45deg, #2c5282 0%, #4299e1 100%)',
+            color: 'white',
+            py: { xs: 6, md: 10 },
+            mb: 6,
+          }}
+        >
+          <Container maxWidth="lg">
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 700,
+                fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                mb: 2,
+                textAlign: 'center',
+              }}
+            >
+              Discover Amazing Places
+            </Typography>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 400,
+                fontSize: { xs: '1.1rem', sm: '1.25rem' },
+                opacity: 0.9,
+                mb: 4,
+                textAlign: 'center',
+              }}
+            >
+              Explore the beauty of Nepal with our curated events
+            </Typography>
+            
+            <Box sx={{ maxWidth: 600, mx: 'auto' }}>
+              <Paper
+                elevation={0}
+                sx={{
+                  p: 0.5,
+                  display: 'flex',
+                  alignItems: 'center',
+                  borderRadius: 2,
+                  bgcolor: 'rgba(255,255,255,0.95)',
+                }}
+              >
+                <TextField
+                  fullWidth
+                  placeholder="Search events..."
+                  variant="standard"
+                  InputProps={{
+                    disableUnderline: true,
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon sx={{ color: '#64748b', ml: 1 }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                  sx={{
+                    '& input': {
+                      py: 1.5,
+                      px: 1,
+                      fontSize: '1.1rem',
+                    },
+                  }}
+                />
+                <Button
+                  variant="contained"
+                  sx={{
+                    py: 1.5,
+                    px: 3,
+                    bgcolor: '#2c5282',
+                    '&:hover': {
+                      bgcolor: '#1a365d',
+                    },
+                    borderRadius: 1,
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                  }}
+                >
+                  Search
+                </Button>
+              </Paper>
+            </Box>
+          </Container>
+        </Box>
+
+        <Container maxWidth="lg">
+          {/* Categories Section */}
+          <Box sx={{ mb: 6 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                mb: 3,
+                color: '#1a365d',
+                fontSize: { xs: '1.5rem', sm: '1.75rem' },
+              }}
+            >
+              Popular Categories
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                flexWrap: 'wrap',
+                gap: 1.5,
+              }}
+            >
+              {categories.map((category, index) => (
+                <Chip
+                  key={category}
+                  label={category}
+                  icon={
+                    category === 'Trekking' ? <ExploreIcon /> :
+                    category === 'Cultural' ? <StarIcon /> :
+                    category === 'Adventure' ? <TrendingUpIcon /> :
+                    <AccessTimeIcon />
+                  }
+                  sx={{
+                    bgcolor: '#f1f5f9',
+                    color: '#1a365d',
+                    fontWeight: 500,
+                    px: 1,
+                    '& .MuiChip-icon': {
+                      color: '#2c5282',
+                    },
+                    '&:hover': {
+                      bgcolor: '#e2e8f0',
+                    },
+                    py: 2.5,
+                  }}
+                  clickable
+                />
+              ))}
+            </Box>
+          </Box>
+
+          {/* Recent Events Section */}
+          <Box sx={{ mb: 6 }}>
+            <Typography
+              variant="h5"
+              sx={{
+                fontWeight: 700,
+                mb: 3,
+                color: '#1a365d',
+                fontSize: { xs: '1.5rem', sm: '1.75rem' },
+              }}
+            >
+              Recent Events
+            </Typography>
+            <Grid container spacing={3}>
+              {recentEvents.map(event => (
+                <Grid item xs={12} sm={6} md={4} key={event.id}>
+                  <Paper
+                    elevation={0}
+                    sx={{
+                      height: '100%',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      bgcolor: '#fff',
+                      borderRadius: 2,
+                      overflow: 'hidden',
+                      border: '1px solid rgba(0,0,0,0.05)',
+                      transition: 'all 0.3s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1), 0 10px 10px -5px rgba(0,0,0,0.04)',
+                      },
+                    }}
+                  >
+                    <EventCard
+                      id={event.id}
+                      title={event.title}
+                      description={event.description}
+                      image={event.image}
+                      onViewDetails={handleViewDetails}
+                    />
+                  </Paper>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+        </Container>
+
+        <Snackbar
+          open={snackbar.open}
+          autoHideDuration={4000}
+          onClose={handleCloseSnackbar}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        >
+          <Alert
+            onClose={handleCloseSnackbar}
+            severity="info"
+            variant="filled"
+            sx={{
+              width: '100%',
+              bgcolor: '#2c5282',
+              '& .MuiAlert-icon': {
+                color: '#ffffff',
+              },
+            }}
+          >
+            <Typography variant="subtitle2" sx={{ fontWeight: 600, color: '#ffffff', mb: 0.5 }}>
+              {snackbar.title}
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#ffffff' }}>
+              {snackbar.message}
+            </Typography>
+          </Alert>
+        </Snackbar>
+      </Box>
+    </MainLayout>
+  );
+};
+
+export default HomePage;
