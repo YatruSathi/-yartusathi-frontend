@@ -9,6 +9,7 @@ import { Events } from './pages/events/events';
 import EventDetails from './pages/events/event-details';
 import AddEventForm from './pages/events/add-event-form';
 import MyCreatedEvents from './pages/events/my-events';
+import Chatbox from './pages/chat/chatbox';
 
 const router = createBrowserRouter([
   {
@@ -40,12 +41,16 @@ const router = createBrowserRouter([
         element: <ProfilePage />,
       },
       {
-        path: '/favorite',
+        path: 'favorite',
         element: <Favorite />,
       },
       {
-        path: '/notification',
+        path: 'notification',
         element: <Notification />,
+      },
+      {
+        path: 'chatbot',
+        element: <Chatbox />,
       },
       {
         path: 'my-events',

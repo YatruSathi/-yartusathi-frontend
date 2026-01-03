@@ -17,7 +17,8 @@ import EventIcon from '@mui/icons-material/Event';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
-import { useNavigate, useLocation } from 'react-router-dom';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import { useNavigate, useLocation } from 'react-router';
 
 const DRAWER_WIDTH = 240;
 
@@ -43,6 +44,7 @@ const menuItems: MenuItem[] = [
     path: '/notifications',
     requiresAuth: true,
   },
+  { text: 'Chatbot', icon: <SmartToyIcon />, path: '/chatbot', requiresAuth: false },
   { text: 'Profile', icon: <PersonIcon />, path: '/profile', requiresAuth: true },
 ];
 
