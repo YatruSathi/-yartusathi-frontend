@@ -10,6 +10,7 @@ import EventDetails from './pages/events/event-details';
 import AddEventForm from './pages/events/add-event-form';
 import MyCreatedEvents from './pages/events/my-events';
 import Chatbox from './pages/chat/chatbox';
+import SettingsPage from './pages/setting/setting';
 
 const router = createBrowserRouter([
   {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
       {
         path: 'my-events',
         element: <MyCreatedEvents />,
+      },
+      {
+        path: 'settings',
+        element: <SettingsPage />,
       },
     ],
   },

@@ -18,6 +18,7 @@ import FavoriteIcon from '@mui/icons-material/Favorite';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import PersonIcon from '@mui/icons-material/Person';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { useNavigate, useLocation } from 'react-router';
 
 const DRAWER_WIDTH = 240;
@@ -44,8 +45,24 @@ const menuItems: MenuItem[] = [
     path: '/notifications',
     requiresAuth: true,
   },
-  { text: 'Chatbot', icon: <SmartToyIcon />, path: '/chatbot', requiresAuth: false },
-  { text: 'Profile', icon: <PersonIcon />, path: '/profile', requiresAuth: true },
+  {
+    text: 'Chatbot',
+    icon: <SmartToyIcon />,
+    path: '/chatbot',
+    requiresAuth: false,
+  },
+  {
+    text: 'Profile',
+    icon: <PersonIcon />,
+    path: '/profile',
+    requiresAuth: true,
+  },
+  {
+    text: 'Settings',
+    icon: <SettingsIcon />,
+    path: '/settings',
+    requiresAuth: false,
+  },
 ];
 
 export function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {

@@ -19,6 +19,8 @@ import {
   Button,
   Stack,
   Chip,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -27,12 +29,14 @@ import EventIcon from '@mui/icons-material/Event';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import ChatIcon from '@mui/icons-material/Chat';
+import SettingsIcon from '@mui/icons-material/Settings';
 import { Outlet, useNavigate, useLocation } from 'react-router';
 import { appConfig } from '../app-config';
 import music from '../assets/imgs/music.jpg';
 import everest from '../assets/imgs/Everest.jpg';
 import pokhara from '../assets/imgs/Pokhare_street_festival.png';
 import Footer from './footer';
+import RegisterForm from '../pages/events/register-form';
 
 const drawerWidth = 60; // Icon-only width
 const expandedDrawerWidth = 200; // Width when hovered
@@ -40,6 +44,7 @@ const expandedDrawerWidth = 200; // Width when hovered
 export const Dashboard: React.FC = () => {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [hovered, setHovered] = React.useState(false);
+  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -78,13 +83,8 @@ export const Dashboard: React.FC = () => {
           { text: 'Events', icon: <EventIcon />, path: '/events' },
           { text: 'My Events', icon: <EventIcon color="primary" />, path: '/my-events' },
           { text: 'Favorite', icon: <FavoriteIcon color="error" />, path: '/favorite' },
-          {
-            text: 'Notifications',
-            icon: <NotificationsIcon color="primary" />,
-            path: '/notification',
-          },
           { text: 'Chatbot', icon: <ChatIcon color="primary" />, path: '/chatbot' },
-          { text: 'Profile', icon: <PeopleIcon />, path: '/user-profile' },
+          { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
         ].map(item => (
           <ListItem key={item.text} disablePadding sx={{ display: 'block' }}>
             <ListItemButton
@@ -130,19 +130,37 @@ export const Dashboard: React.FC = () => {
           transition: 'width 0.2s, margin-left 0.2s',
         }}
       >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            {appConfig.appName}
-          </Typography>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <IconButton
+              color="inherit"
+              aria-label="open drawer"
+              edge="start"
+              onClick={handleDrawerToggle}
+              sx={{ mr: 2, display: { sm: 'none' } }}
+            >
+              <MenuIcon />
+            </IconButton>
+            <Typography variant="h6" noWrap component="div">
+              {appConfig.appName}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, pr: 6 }}>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/notification')}
+              aria-label="notifications"
+            >
+              <NotificationsIcon />
+            </IconButton>
+            <IconButton
+              color="inherit"
+              onClick={() => navigate('/user-profile')}
+              aria-label="profile"
+            >
+              <PeopleIcon />
+            </IconButton>
+          </Box>
         </Toolbar>
       </AppBar>
       <Box sx={{ display: 'flex', flex: 1 }}>
@@ -192,10 +210,11 @@ export const Dashboard: React.FC = () => {
         >
           <Toolbar />
           {/* Featured events carousel only shows on home page */}
-          {location.pathname === '/home' && <CarouselFeature />}
-
-          {/* Renders whatever child route is active */}
+          {location.pathname === '/home' && (
+            <CarouselFeature onOpenRegister={() => setOpenRegisterDialog(true)} />
+          )}
           <Outlet />
+          <RegisterDialog open={openRegisterDialog} onClose={() => setOpenRegisterDialog(false)} />
         </Box>
       </Box>
       <Footer />
@@ -203,7 +222,7 @@ export const Dashboard: React.FC = () => {
   );
 };
 
-const CarouselFeature: React.FC = () => {
+const CarouselFeature: React.FC<{ onOpenRegister: () => void }> = ({ onOpenRegister }) => {
   const navigate = useNavigate();
   const featuredEvents = [
     {
@@ -281,12 +300,7 @@ const CarouselFeature: React.FC = () => {
               {item.desc}
             </Typography>
             <Box sx={{ mt: 2 }}>
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ mr: 1 }}
-                onClick={() => navigate(`/events/${item.id}`)}
-              >
+              <Button variant="contained" color="primary" sx={{ mr: 1 }} onClick={onOpenRegister}>
                 Book Now
               </Button>
               <Button variant="outlined" onClick={() => navigate(`/events/${item.id}`)}>
@@ -326,5 +340,15 @@ const CarouselFeature: React.FC = () => {
         ))}
       </Box>
     </Box>
+  );
+};
+
+const RegisterDialog: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
+  return (
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogContent sx={{ p: 0 }}>
+        <RegisterForm />
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -284,7 +284,7 @@ function Footer() {
           <Box sx={{ display: 'flex', gap: 1 }}>
             <IconButton
               component="a"
-              href="https://facebook.com"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               size="small"
@@ -298,7 +298,7 @@ function Footer() {
             </IconButton>
             <IconButton
               component="a"
-              href="https://twitter.com"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               size="small"
@@ -312,7 +312,7 @@ function Footer() {
             </IconButton>
             <IconButton
               component="a"
-              href="https://instagram.com"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               size="small"
@@ -326,7 +326,7 @@ function Footer() {
             </IconButton>
             <IconButton
               component="a"
-              href="https://linkedin.com"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               size="small"
@@ -340,7 +340,7 @@ function Footer() {
             </IconButton>
             <IconButton
               component="a"
-              href="https://youtube.com"
+              href=""
               target="_blank"
               rel="noopener noreferrer"
               size="small"

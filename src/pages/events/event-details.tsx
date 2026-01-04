@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Box,
   Card,
@@ -9,10 +9,13 @@ import {
   Grid,
   Chip,
   Divider,
+  Dialog,
+  DialogContent,
 } from '@mui/material';
 import kathmanduImg from '../../assets/imgs/Kathmandu.jpg';
 import { useParams } from 'react-router';
 import { event as sampleEvent } from './sample-event';
+import RegisterForm from './register-form';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import GroupIcon from '@mui/icons-material/Group';
@@ -29,6 +32,7 @@ const event = {
 
 const EventDetails: React.FC = () => {
   const params = useParams();
+  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
   console.log(params);
 
   // Format date for display
@@ -251,6 +255,7 @@ const EventDetails: React.FC = () => {
                 variant="contained"
                 size="large"
                 fullWidth
+                onClick={() => setOpenRegisterDialog(true)}
                 sx={{
                   mt: 3,
                   background: 'linear-gradient(45deg, #2c5282 0%, #3182ce 100%)',
@@ -271,6 +276,18 @@ const EventDetails: React.FC = () => {
           </Grid>
         </CardContent>
       </Card>
+
+      {/* Register Dialog */}
+      <Dialog
+        open={openRegisterDialog}
+        onClose={() => setOpenRegisterDialog(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogContent sx={{ p: 0 }}>
+          <RegisterForm />
+        </DialogContent>
+      </Dialog>
     </Box>
   );
 };
