@@ -15,12 +15,16 @@ import SettingsPage from './pages/setting/setting';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Login />,
+    element: <Dashboard />,
   },
   {
     path: '/',
     element: <Dashboard />, // Parent route with sidebar and app bar
     children: [
+      {
+        path: 'login',
+        element: <Login />,
+      },
       {
         path: 'home',
         element: <Home />,
