@@ -1,5 +1,6 @@
 import Favorite from './pages/home/favorite';
 import { createBrowserRouter } from 'react-router';
+//import { LandingPage } from './pages/landing/LandingPage';
 import { Login } from './pages/login';
 import { Home } from './pages/home';
 import { Dashboard } from './layout/dashboard';
@@ -15,7 +16,7 @@ import SettingsPage from './pages/setting/setting';
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <Dashboard />,
+    element: <Login />,
   },
   {
     path: '/',

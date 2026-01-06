@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Box,
@@ -13,12 +13,7 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Card,
-  CardContent,
-  CardMedia,
   Button,
-  Dialog,
-  DialogContent,
 } from '@mui/material';
 
 import HomeIcon from '@mui/icons-material/Home';
@@ -30,15 +25,10 @@ import NotificationsIcon from '@mui/icons-material/Notifications';
 import ChatIcon from '@mui/icons-material/Chat';
 import SettingsIcon from '@mui/icons-material/Settings';
 
-import { Outlet, useNavigate, useLocation } from 'react-router';
+import { Outlet, useNavigate } from 'react-router';
 import { appConfig } from '../app-config';
 
-import music from '../assets/imgs/music.jpg';
-import everest from '../assets/imgs/Everest.jpg';
-import pokhara from '../assets/imgs/Pokhare_street_festival.png';
-
 import Footer from './footer';
-import RegisterForm from '../pages/events/register-form';
 
 const drawerWidth = 60;
 const expandedDrawerWidth = 200;
@@ -46,10 +36,8 @@ const expandedDrawerWidth = 200;
 export const Dashboard: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
-  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -154,7 +142,7 @@ export const Dashboard: React.FC = () => {
               <PeopleIcon />
             </IconButton>
 
-            {/* Register button AFTER profile */}
+            {/* Register Button */}
             <Button
               variant="contained"
               color="secondary"
@@ -190,96 +178,11 @@ export const Dashboard: React.FC = () => {
 
         <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
           <Toolbar />
-
-          {location.pathname === '/home' && (
-            <CarouselFeature onOpenRegister={() => setOpenRegisterDialog(true)} />
-          )}
-
           <Outlet />
-
-          <RegisterDialog open={openRegisterDialog} onClose={() => setOpenRegisterDialog(false)} />
         </Box>
       </Box>
 
       <Footer />
     </Box>
-  );
-};
-
-/* ================= Carousel ================= */
-
-const CarouselFeature: React.FC<{ onOpenRegister: () => void }> = ({ onOpenRegister }) => {
-  const navigate = useNavigate();
-
-  const featuredEvents = [
-    {
-      id: '123',
-      title: 'Everest Base Camp Trek',
-      date: '3 Jan 2026',
-      location: 'Pokhara, Nepal',
-      desc: 'Join the most iconic trek this season.',
-      image: everest,
-    },
-    {
-      id: '124',
-      title: 'Pokhara Street Festival',
-      date: '29 Dec 2025',
-      location: 'Pokhara, Nepal',
-      desc: 'Experience culture and adventure.',
-      image: pokhara,
-    },
-    {
-      id: '125',
-      title: 'Music Concert',
-      date: '20 Mar 2026',
-      location: 'Kathmandu, Nepal',
-      desc: 'Nepathya live in Kathmandu.',
-      image: music,
-    },
-  ];
-
-  const [index, setIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setIndex(i => (i + 1) % featuredEvents.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  });
-
-  const item = featuredEvents[index];
-
-  return (
-    <Card sx={{ mb: 3, display: 'flex', height: 320 }}>
-      <CardMedia component="img" image={item.image} sx={{ width: '45%' }} />
-      <CardContent>
-        <Typography variant="h5">{item.title}</Typography>
-        <Typography sx={{ mt: 1 }}>
-          {item.date} • {item.location}
-        </Typography>
-        <Typography sx={{ mt: 2 }}>{item.desc}</Typography>
-
-        <Box sx={{ mt: 2 }}>
-          <Button variant="contained" sx={{ mr: 1 }} onClick={onOpenRegister}>
-            Book Now
-          </Button>
-          <Button variant="outlined" onClick={() => navigate(`/events/${item.id}`)}>
-            Details
-          </Button>
-        </Box>
-      </CardContent>
-    </Card>
-  );
-};
-
-/* ================= Register Dialog ================= */
-
-const RegisterDialog: React.FC<{ open: boolean; onClose: () => void }> = ({ open, onClose }) => {
-  return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogContent sx={{ p: 0 }}>
-        <RegisterForm />
-      </DialogContent>
-    </Dialog>
   );
 };

@@ -1,78 +1,138 @@
-import React from "react";
-import { useNavigate } from "react-router";
-import { Box, Button, TextField, Typography, Paper } from "@mui/material";
-import { styled } from "@mui/material/styles";
-
-const Background = styled(Box)(() => ({
-  minHeight: "100vh",
-  background: "linear-gradient(to right, #1e3c72, #2a5298)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "16px", // Prevent content overflow on tiny screens
-}));
-
-const LoginPaper = styled(Paper)(({ theme }) => ({
-  padding: theme.spacing(4),
-  width: "100%",
-  maxWidth: 400,
-  borderRadius: theme.shape.borderRadius * 2,
-  boxShadow: theme.shadows[6],
-}));
-
-const StyledButton = styled(Button)(({ theme }) => ({
-  marginTop: theme.spacing(3),
-  padding: theme.spacing(1.5),
-  fontWeight: 600,
-  textTransform: "none",
-  background: "#1e88e5",
-  "&:hover": {
-    background: "#1565c0",
-  },
-}));
+import React from 'react';
+import { useNavigate } from 'react-router';
+import { Box, Button, TextField, Typography, Divider } from '@mui/material';
+import GoogleIcon from '@mui/icons-material/Google';
+import lumbini from '../../assets/imgs/Lumbini .jpg';
+import manang from '../../assets/imgs/Manang.jpg';
 
 export const Login: React.FC = () => {
-  //TODO: Read about react hook, useState, useEffect, other custom hook  
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
   return (
-    <Background>
-      <LoginPaper elevation={3}>
-        <Typography
-          variant="h5"
-          align="center"
-          gutterBottom
-          sx={{ fontWeight: 600 }}
-        >
-          Welcome Back
-        </Typography>
-        <Typography
-          variant="body2"
-          align="center"
-          color="textSecondary"
-          sx={{ mb: 3 }}
-        >
-          Please login to your account
-        </Typography>
-        <Box component="form" noValidate>
-          <TextField
-            fullWidth
-            label="Email"
-            variant="outlined"
-            type="email"
-            margin="normal"
-          />
-          <TextField
-            fullWidth
-            label="Password"
-            variant="outlined"
-            type="password"
-            margin="normal"
-          />
-          <StyledButton onClick={() => navigate('/home')} fullWidth variant="contained">
+    <Box
+      sx={{
+        minHeight: '100vh',
+        display: 'flex',
+        bgcolor: '#f8fafc',
+      }}
+    >
+      {/* LEFT – LOGIN SECTION */}
+      <Box
+        sx={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          px: 4,
+        }}
+      >
+        <Box sx={{ width: '100%', maxWidth: 380 }}>
+          <Typography variant="h6" fontWeight={700}>
+            YATRUSATHI.CO
+          </Typography>
+
+          <Typography variant="h4" fontWeight={600} mt={4}>
             Login
-          </StyledButton>
+          </Typography>
+
+          <Typography color="text.secondary" mb={4}>
+            Access your account
+          </Typography>
+
+          <TextField fullWidth label="Email Address" margin="normal" />
+
+          <TextField fullWidth label="Password" type="password" margin="normal" />
+
+          <Box textAlign="right" mt={1}>
+            <Button size="small" onClick={() => navigate('/forgot-password')}>
+              Forgot password?
+            </Button>
+          </Box>
+
+          <Button
+            fullWidth
+            variant="contained"
+            sx={{
+              mt: 2,
+              py: 1.3,
+              bgcolor: '#083344',
+              textTransform: 'none',
+              fontWeight: 600,
+              '&:hover': {
+                bgcolor: '#0f4c5c',
+              },
+            }}
+            onClick={() => navigate('/home')}
+          >
+            Login
+          </Button>
+
+          <Divider sx={{ my: 3 }}>OR</Divider>
+
+          <Button
+            fullWidth
+            variant="outlined"
+            startIcon={<GoogleIcon />}
+            sx={{
+              py: 1.2,
+              textTransform: 'none',
+              fontWeight: 600,
+            }}
+          >
+            Continue with Google
+          </Button>
+
+          <Typography align="center" mt={3}>
+            Don’t have an account?{' '}
+            <Button size="small" onClick={() => navigate('/signup')}>
+              Sign Up
+            </Button>
+          </Typography>
+
+          <Box mt={6}>
+            <Typography fontWeight={600}>Travel Smarter, Travel Safer</Typography>
+            <Typography variant="body2" color="text.secondary">
+              www.yatrusathi.co
+            </Typography>
+          </Box>
         </Box>
-      </LoginPaper>
-    </Background>
+      </Box>
+
+      {/* RIGHT – IMAGE SECTION */}
+      <Box
+        sx={{
+          flex: 1,
+          display: { xs: 'none', md: 'flex' },
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 3,
+          px: 4,
+        }}
+      >
+        <Box
+          component="img"
+          src={lumbini}
+          alt="Lumbini"
+          sx={{
+            width: '55%',
+            height: '70%',
+            objectFit: 'cover',
+            borderRadius: 4,
+          }}
+        />
+
+        <Box
+          component="img"
+          src={manang}
+          alt="Manang"
+          sx={{
+            width: '30%',
+            height: '55%',
+            objectFit: 'cover',
+            borderRadius: 4,
+          }}
+        />
+      </Box>
+    </Box>
   );
 };
