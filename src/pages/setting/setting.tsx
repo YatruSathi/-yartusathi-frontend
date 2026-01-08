@@ -52,7 +52,7 @@ export default function SettingsPage() {
         value={tab}
         onChange={(_, newValue: number) => setTab(newValue)}
         sx={{
-          minWidth: 220,
+          minWidth: 230,
           borderRight: 1,
           borderColor: 'divider',
         }}
@@ -61,6 +61,7 @@ export default function SettingsPage() {
         <Tab label="Privacy" />
         <Tab label="Security" />
         <Tab label="Notifications" />
+        <Tab label="KYC Verification" />
         <Tab label="Account" />
       </Tabs>
 
@@ -70,7 +71,7 @@ export default function SettingsPage() {
           Settings
         </Typography>
         <Typography variant="body2" color="text.secondary" mb={3}>
-          Manage your account preferences and privacy
+          Manage your account preferences and verification
         </Typography>
 
         {success && (
@@ -178,8 +179,95 @@ export default function SettingsPage() {
           </Card>
         </TabPanel>
 
-        {/* ================= ACCOUNT ================= */}
+        {/* ================= KYC ================= */}
         <TabPanel value={tab} index={4}>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" mb={1}>
+                KYC Verification (Optional)
+              </Typography>
+              <Typography variant="body2" color="text.secondary" mb={3}>
+                Verify your identity using National ID to unlock trusted features.
+              </Typography>
+
+              <Stack spacing={2}>
+                <TextField
+                  select
+                  label="Verification Method"
+                  SelectProps={{ native: true }}
+                  fullWidth
+                >
+                  <option value="">Select (Optional)</option>
+                  <option value="nid">National ID (NID)</option>
+                </TextField>
+
+                <TextField
+                  label="National ID Number"
+                  fullWidth
+                  placeholder="Enter your NID number"
+                />
+
+                {/* Profile Photo */}
+                <Box>
+                  <Typography variant="body2" mb={0.5}>
+                    Upload Profile Photo
+                  </Typography>
+                  <Button variant="outlined" component="label">
+                    Upload Photo
+                    <input hidden type="file" accept="image/*" />
+                  </Button>
+                </Box>
+
+                {/* NID Front */}
+                <Box>
+                  <Typography variant="body2" mb={0.5}>
+                    Upload NID (Front Side)
+                  </Typography>
+                  <Button variant="outlined" component="label">
+                    Upload NID Front
+                    <input hidden type="file" accept="image/*" />
+                  </Button>
+                </Box>
+
+                {/* NID Back */}
+                <Box>
+                  <Typography variant="body2" mb={0.5}>
+                    Upload NID (Back Side)
+                  </Typography>
+                  <Button variant="outlined" component="label">
+                    Upload NID Back
+                    <input hidden type="file" accept="image/*" />
+                  </Button>
+                </Box>
+
+                {/* Selfie with NID */}
+                <Box>
+                  <Typography variant="body2" mb={0.5}>
+                    Selfie Holding NID
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Your face and NID details must be clearly visible.
+                  </Typography>
+                  <Button variant="outlined" component="label" sx={{ mt: 1 }}>
+                    Upload Selfie
+                    <input hidden type="file" accept="image/*" />
+                  </Button>
+                </Box>
+
+                <Alert severity="info">
+                  Your documents are securely stored and reviewed manually.
+                </Alert>
+
+                <Button variant="contained" onClick={handleSave}>
+                  Submit KYC
+                </Button>
+              </Stack>
+            </CardContent>
+          </Card>
+        </TabPanel>
+
+        {/* ================= ACCOUNT ================= */}
+        <TabPanel value={tab} index={5}>
           <Card>
             <CardContent>
               <Typography variant="h6" mb={2}>
