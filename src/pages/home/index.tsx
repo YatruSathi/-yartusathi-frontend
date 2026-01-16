@@ -104,7 +104,6 @@ export const Home: React.FC = () => {
           {/* LEFT: WEBSITE DESCRIPTION */}
           <Grid item xs={12} md={6}>
             <Typography variant="h4" fontWeight="bold" gutterBottom>
-              Explore Nepal Like Never Before <br />
               Discover Nepal Beyond the Famous
             </Typography>
 
