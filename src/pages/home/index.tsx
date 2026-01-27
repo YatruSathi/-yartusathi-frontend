@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Typography,
@@ -17,84 +17,71 @@ import {
   ListItemText,
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-
-import Image01 from '../../assets/imgs/image-01.jpg';
-import Image02 from '../../assets/imgs/image-02.jpg';
-import Image03 from '../../assets/imgs/image-03.jpg';
-import Image04 from '../../assets/imgs/image-04.jpg';
+import { useNavigate } from 'react-router';
 
 import { EventCard } from './components/event-card';
+import api from '../../services/api';
 
-/* ================= DATA ================= */
+/* ================= TYPES ================= */
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  category?: string;
+  image?: string;
+}
 
-const liveEvent = {
-  id: 100,
-  title: 'Annapurna Base Camp Trek',
-  image: Image04,
-  description: 'Currently happening trek with live updates.',
-  category: 'Trekking',
-};
-
-const recentEvents = [
-  {
-    id: 1,
-    title: 'Pokhara Cultural Tour',
-    image: Image01,
-    description: 'Experience the vibrant culture of Pokhara.',
-    category: 'Cultural',
-  },
-  {
-    id: 2,
-    title: 'Chitwan Safari Expedition',
-    image: Image02,
-    description: 'Wildlife adventure in Chitwan National Park.',
-    category: 'Wildlife',
-  },
-  {
-    id: 3,
-    title: 'Lumbini Heritage Walk',
-    image: Image03,
-    description: 'Discover the birthplace of Buddha.',
-    category: 'Cultural',
-  },
-  {
-    id: 4,
-    title: 'Everest Base Camp Trek',
-    image: Image04,
-    description: 'Challenge yourself to reach the base camp.',
-    category: 'Trekking',
-  },
-];
-
-const categories = ['Trekking', 'Cultural', 'Adventure', 'Wildlife'];
-
-const allEvents = [liveEvent, ...recentEvents];
+/* ================= CONSTANTS ================= */
+const categories: string[] = ['Trekking', 'Cultural', 'Adventure', 'Wildlife'];
 
 /* ================= COMPONENT ================= */
-
 export const Home: React.FC = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+  const [events, setEvents] = useState<Event[]>([]);
+  const [liveEvent, setLiveEvent] = useState<Event | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
-  const handleCategoryClick = (category: string) => {
+  const navigate = useNavigate();
+
+  /* ================= FETCH EVENTS ================= */
+  useEffect(() => {
+    api
+      .get<Event[]>('events/')
+      .then(response => {
+        setEvents(response.data);
+        if (response.data.length > 0) {
+          setLiveEvent(response.data[0]); // first event as live
+        }
+      })
+      .catch(error => console.error('Error fetching events:', error));
+  }, []);
+
+  /* ================= CATEGORY HANDLER ================= */
+  const handleCategoryClick = (category: string): void => {
     setSelectedCategory(prev => (prev === category ? null : category));
+    setSearchTerm(''); // reset search when category clicked
   };
 
   /* ================= SEARCH SUGGESTIONS ================= */
-
-  const suggestions =
+  const suggestions: Event[] =
     searchTerm.length > 0
-      ? allEvents.filter(event => event.title.toLowerCase().includes(searchTerm.toLowerCase()))
+      ? events.filter(
+          event =>
+            event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            event.category?.toLowerCase().includes(searchTerm.toLowerCase())
+        )
       : [];
 
-  /* ================= FILTER RECENT EVENTS ================= */
-
-  const filteredRecentEvents = recentEvents.filter(event => {
+  /* ================= FILTERED EVENTS ================= */
+  const filteredEvents: Event[] = events.filter(event => {
     const matchesSearch = searchTerm
-      ? event.title.toLowerCase().includes(searchTerm.toLowerCase())
+      ? event.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        event.category?.toLowerCase().includes(searchTerm.toLowerCase())
       : true;
 
-    const matchesCategory = selectedCategory ? event.category === selectedCategory : true;
+    const matchesCategory = selectedCategory
+      ? event.category === selectedCategory
+      : true;
 
     return matchesSearch && matchesCategory;
   });
@@ -104,10 +91,13 @@ export const Home: React.FC = () => {
       {/* ================= SEARCH BAR ================= */}
       <Box maxWidth="lg" mx="auto" px={2} mt={3} position="relative">
         <TextField
-          placeholder="Search events..."
+          placeholder="Search events or categories..."
           fullWidth
           value={searchTerm}
-          onChange={e => setSearchTerm(e.target.value)}
+          onChange={e => {
+            setSearchTerm(e.target.value);
+            setSelectedCategory(null); // reset category filter when typing
+          }}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -133,8 +123,14 @@ export const Home: React.FC = () => {
           >
             <List>
               {suggestions.map(event => (
-                <ListItemButton key={event.id} onClick={() => setSearchTerm(event.title)}>
-                  <ListItemText primary={event.title} secondary={event.category} />
+                <ListItemButton
+                  key={event.id}
+                  onClick={() => navigate(`/events/${event.id}`)}
+                >
+                  <ListItemText
+                    primary={event.title}
+                    secondary={event.category ?? 'General'}
+                  />
                 </ListItemButton>
               ))}
             </List>
@@ -155,35 +151,45 @@ export const Home: React.FC = () => {
         </Box>
       </Box>
 
-      {/* ================= LIVE EVENT (ALWAYS VISIBLE) ================= */}
-      <Box maxWidth="lg" mx="auto" px={2} mt={5}>
-        <Grid container spacing={4} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Typography variant="h4" fontWeight="bold">
-              Discover Nepal Beyond the Famous
-            </Typography>
-            <Typography color="text.secondary" mt={2}>
-              Follow journeys happening right now across Nepal.
-            </Typography>
-          </Grid>
+      {/* ================= LIVE EVENT ================= */}
+      {liveEvent && (
+        <Box maxWidth="lg" mx="auto" px={2} mt={5}>
+          <Grid container spacing={4} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Typography variant="h4" fontWeight="bold">
+                Discover Nepal Beyond the Famous
+              </Typography>
+              <Typography color="text.secondary" mt={2}>
+                Follow journeys happening right now across Nepal.
+              </Typography>
+            </Grid>
 
-          <Grid item xs={12} md={6}>
-            <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
-              <CardMedia component="img" height="260" image={liveEvent.image} />
-              <CardContent>
-                <Typography color="primary" fontWeight="bold">
-                  🔴 LIVE NOW
-                </Typography>
-                <Typography variant="h6">{liveEvent.title}</Typography>
-                <Typography color="text.secondary">{liveEvent.description}</Typography>
-                <Button variant="contained" sx={{ mt: 2 }}>
-                  View Live Event
-                </Button>
-              </CardContent>
-            </Card>
+            <Grid item xs={12} md={6}>
+              <Card sx={{ borderRadius: 3, boxShadow: 4 }}>
+                <CardMedia
+                  component="img"
+                  height="260"
+                  image={liveEvent.image ?? '/placeholder.jpg'}
+                />
+                <CardContent>
+                  <Typography color="primary" fontWeight="bold">
+                    🔴 LIVE NOW
+                  </Typography>
+                  <Typography variant="h6">{liveEvent.title}</Typography>
+                  <Typography color="text.secondary">{liveEvent.description}</Typography>
+                  <Button
+                    variant="contained"
+                    sx={{ mt: 2 }}
+                    onClick={() => navigate(`/events/${liveEvent.id}`)}
+                  >
+                    View Live Event
+                  </Button>
+                </CardContent>
+              </Card>
+            </Grid>
           </Grid>
-        </Grid>
-      </Box>
+        </Box>
+      )}
 
       {/* ================= RECENT EVENTS ================= */}
       <Box maxWidth="lg" mx="auto" px={2} mt={6} mb={4}>
@@ -192,14 +198,14 @@ export const Home: React.FC = () => {
         </Typography>
 
         <Grid container spacing={2}>
-          {filteredRecentEvents.map(event => (
+          {filteredEvents.map(event => (
             <EventCard
               key={event.id}
               id={event.id}
               title={event.title}
               description={event.description}
-              image={event.image}
-              onViewDetails={() => console.log(event.title)}
+              image={event.image ?? '/placeholder.jpg'}
+              onViewDetails={() => navigate(`/events/${event.id}`)}
             />
           ))}
         </Grid>

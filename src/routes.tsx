@@ -7,7 +7,7 @@ import { Dashboard } from './layout/dashboard';
 import { ProfilePage } from './pages/profile/profile-page';
 import { Notification } from './pages/events/notifications';
 import { Events } from './pages/events/events';
-import EventDetails from './pages/events/event-details';
+import { EventDetails } from './pages/events/event-details';
 import AddEventForm from './pages/events/add-event-form';
 import MyCreatedEvents from './pages/events/my-events';
 import Chatbox from './pages/chat/chatbox';

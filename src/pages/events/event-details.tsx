@@ -1,21 +1,17 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router';
 import {
   Box,
-  Card,
-  CardMedia,
-  CardContent,
   Typography,
+  CircularProgress,
+  Card,
+  CardContent,
+  CardMedia,
   Button,
   Grid,
   Chip,
   Divider,
-  Dialog,
-  DialogContent,
 } from '@mui/material';
-import kathmanduImg from '../../assets/imgs/Kathmandu.jpg';
-import { useParams } from 'react-router';
-import { event as sampleEvent } from './sample-event';
-import RegisterForm from './register-form';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import LocationOnIcon from '@mui/icons-material/LocationOn';
 import GroupIcon from '@mui/icons-material/Group';
@@ -24,19 +20,53 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import FacebookIcon from '@mui/icons-material/Facebook';
 import PriceCheckIcon from '@mui/icons-material/PriceCheck';
 
-// Temporarily using sample event data
-const event = {
-  ...sampleEvent,
-  image: kathmanduImg,
-};
+import api from '../../services/api';
 
-const EventDetails: React.FC = () => {
-  const params = useParams();
-  const [openRegisterDialog, setOpenRegisterDialog] = useState(false);
-  console.log(params);
+/* ================= TYPES ================= */
+interface Event {
+  id: number;
+  title: string;
+  description: string;
+  category?: string;
+  image?: string;
+  tags?: string;
+  startDateTime?: string;
+  endDateTime?: string;
+  locationName?: string;
+  mapLink?: string;
+  minParticipants?: number;
+  maxParticipants?: number;
+  ageLimit?: number;
+  priorExperienceRequired?: boolean;
+  isFreeEvent?: boolean;
+  ticketPrice?: number;
+  payOnSite?: boolean;
+  equipmentList?: string;
+  organizerName?: string;
+  contactEmail?: string;
+  phoneNumber?: string;
+  socialMediaLink?: string;
+}
 
-  // Format date for display
-  const formatDate = (dateStr: string) => {
+/* ================= COMPONENT ================= */
+export const EventDetails: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
+  const [event, setEvent] = useState<Event | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!id) return;
+
+    api
+      .get<Event>(`events/${id}/`)
+      .then(res => setEvent(res.data))
+      .catch(err => console.error('Failed to fetch event', err))
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  // Format date nicely
+  const formatDate = (dateStr?: string) => {
+    if (!dateStr) return 'N/A';
     return new Date(dateStr).toLocaleString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -47,73 +77,60 @@ const EventDetails: React.FC = () => {
     });
   };
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" mt={6}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!event) {
+    return (
+      <Box textAlign="center" mt={6}>
+        <Typography>Event not found</Typography>
+      </Box>
+    );
+  }
+
   return (
-    <Box
-      sx={{
-        width: '100%',
-        minHeight: '80vh',
-        background: '#ffffff',
-      }}
-    >
-      <Card
-        sx={{
-          width: '100%',
-          boxShadow: 'none',
-          borderRadius: 0,
-          overflow: 'hidden',
-          background: '#ffffff',
-          color: '#2c3e50',
-        }}
-      >
+    <Box sx={{ width: '100%', minHeight: '80vh', background: '#ffffff', py: 4 }}>
+      <Card sx={{ width: '90%', maxWidth: 1200, margin: '0 auto', borderRadius: 3 }}>
         <CardMedia
           component="img"
           height="400"
-          image={event.image}
+          image={event.image ?? '/placeholder.jpg'}
           alt={event.title}
-          sx={{
-            objectFit: 'cover',
-          }}
+          sx={{ objectFit: 'cover' }}
         />
-        <CardContent sx={{ p: { xs: 2, sm: 3, md: 4 }, maxWidth: 1200, margin: '0 auto' }}>
+        <CardContent sx={{ p: 4 }}>
+          <Typography variant="h4" fontWeight={700} gutterBottom>
+            {event.title}
+          </Typography>
+
+          {/* Tags */}
+          {event.tags && (
+            <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+              {event.tags.split(',').map(tag => (
+                <Chip
+                  key={tag.trim()}
+                  label={tag.trim()}
+                  size="small"
+                  sx={{ backgroundColor: '#f0f7ff', color: '#2c5282', fontWeight: 500 }}
+                />
+              ))}
+            </Box>
+          )}
+
+          {/* Description */}
+          <Typography variant="body1" sx={{ color: '#4a5568', mb: 3, fontSize: 18, lineHeight: 1.6 }}>
+            {event.description}
+          </Typography>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Event Info */}
           <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Typography
-                variant="h4"
-                fontWeight={700}
-                gutterBottom
-                sx={{ color: '#1a365d', letterSpacing: 0.5 }}
-              >
-                {event.title}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
-                {event.tags.split(',').map(tag => (
-                  <Chip
-                    key={tag.trim()}
-                    label={tag.trim()}
-                    size="small"
-                    sx={{
-                      backgroundColor: '#f0f7ff',
-                      color: '#2c5282',
-                      fontWeight: 500,
-                    }}
-                  />
-                ))}
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography
-                variant="body1"
-                sx={{ color: '#4a5568', mb: 3, fontSize: 18, lineHeight: 1.6 }}
-              >
-                {event.description}
-              </Typography>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Divider sx={{ backgroundColor: '#e2e8f0', my: 2 }} />
-            </Grid>
-
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccessTimeIcon sx={{ mr: 1, color: '#3182ce' }} />
@@ -121,39 +138,36 @@ const EventDetails: React.FC = () => {
                   <Typography variant="subtitle2" sx={{ color: '#4a5568', fontWeight: 600 }}>
                     Start Date & Time
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#2d3748' }}>
-                    {formatDate(event.startDateTime)}
-                  </Typography>
+                  <Typography variant="body2">{formatDate(event.startDateTime)}</Typography>
                 </Box>
               </Box>
+
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <AccessTimeIcon sx={{ mr: 1, color: '#3182ce' }} />
                 <Box>
                   <Typography variant="subtitle2" sx={{ color: '#4a5568', fontWeight: 600 }}>
                     End Date & Time
                   </Typography>
-                  <Typography variant="body2" sx={{ color: '#2d3748' }}>
-                    {formatDate(event.endDateTime)}
-                  </Typography>
+                  <Typography variant="body2">{formatDate(event.endDateTime)}</Typography>
                 </Box>
               </Box>
             </Grid>
 
             <Grid item xs={12} md={6}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <LocationOnIcon sx={{ mr: 1, color: 'rgba(255,255,252,0.7)' }} />
+                <LocationOnIcon sx={{ mr: 1, color: '#3182ce' }} />
                 <Box>
-                  <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,252,0.7)' }}>
+                  <Typography variant="subtitle2" sx={{ color: '#4a5568', fontWeight: 600 }}>
                     Location
                   </Typography>
-                  <Typography variant="body2">{event.locationName}</Typography>
+                  <Typography variant="body2">{event.locationName ?? 'N/A'}</Typography>
                   {event.mapLink && (
                     <Button
                       href={event.mapLink}
                       target="_blank"
                       rel="noopener noreferrer"
                       size="small"
-                      sx={{ color: '#fffffc', textTransform: 'none', p: 0, mt: 0.5 }}
+                      sx={{ mt: 0.5, textTransform: 'none', p: 0 }}
                     >
                       View on Map
                     </Button>
@@ -161,44 +175,37 @@ const EventDetails: React.FC = () => {
                 </Box>
               </Box>
             </Grid>
+          </Grid>
 
-            <Grid item xs={12}>
-              <Divider sx={{ backgroundColor: 'rgba(255,255,252,0.1)', my: 2 }} />
-            </Grid>
+          <Divider sx={{ my: 2 }} />
 
+          {/* Participants & Price */}
+          <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,252,0.7)', mb: 1 }}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Participant Information
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <GroupIcon sx={{ color: 'rgba(255,255,252,0.7)' }} />
+                  <GroupIcon />
                   <Typography variant="body2">
-                    {event.minParticipants} - {event.maxParticipants} participants
+                    {event.minParticipants ?? 0} - {event.maxParticipants ?? 0} participants
                   </Typography>
                 </Box>
-                {event.ageLimit && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Age Limit: {event.ageLimit}+
-                  </Typography>
-                )}
-                {event.priorExperienceRequired && (
-                  <Typography variant="body2" sx={{ mt: 1 }}>
-                    Prior Experience Required
-                  </Typography>
-                )}
+                {event.ageLimit && <Typography variant="body2">Age Limit: {event.ageLimit}+</Typography>}
+                {event.priorExperienceRequired && <Typography variant="body2">Prior Experience Required</Typography>}
               </Box>
             </Grid>
 
             <Grid item xs={12} md={6}>
-              <Box sx={{ mb: 2 }}>
-                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,252,0.7)', mb: 1 }}>
+              <Box>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Price Information
                 </Typography>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                  <PriceCheckIcon sx={{ color: 'rgba(255,255,252,0.7)' }} />
+                  <PriceCheckIcon />
                   <Typography variant="body2">
-                    {event.isFreeEvent ? 'Free Event' : `NPR ${event.ticketPrice}`}
+                    {event.isFreeEvent ? 'Free Event' : `NPR ${event.ticketPrice ?? 0}`}
                     {event.payOnSite && ' (Pay on Site Available)'}
                   </Typography>
                 </Box>
@@ -207,89 +214,52 @@ const EventDetails: React.FC = () => {
 
             {event.equipmentList && (
               <Grid item xs={12}>
-                <Typography variant="subtitle2" sx={{ color: 'rgba(255,255,252,0.7)', mb: 1 }}>
+                <Typography variant="subtitle2" sx={{ mb: 1 }}>
                   Required Equipment
                 </Typography>
                 <Typography variant="body2">{event.equipmentList}</Typography>
               </Grid>
             )}
-
-            <Grid item xs={12}>
-              <Divider sx={{ backgroundColor: 'rgba(255,255,252,0.1)', my: 2 }} />
-            </Grid>
-
-            <Grid item xs={12}>
-              <Typography variant="h6" sx={{ mb: 2, color: '#fffffc' }}>
-                Organizer Information
-              </Typography>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="body2">
-                  <strong>{event.organizerName}</strong>
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <EmailIcon sx={{ fontSize: 20 }} />
-                  <Typography variant="body2">{event.contactEmail}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <PhoneIcon sx={{ fontSize: 20 }} />
-                  <Typography variant="body2">{event.phoneNumber}</Typography>
-                </Box>
-                {event.socialMediaLink && (
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <FacebookIcon sx={{ fontSize: 20 }} />
-                    <Button
-                      href={event.socialMediaLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      sx={{ color: '#fffffc', textTransform: 'none', p: 0 }}
-                    >
-                      Visit Social Media Page
-                    </Button>
-                  </Box>
-                )}
-              </Box>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Button
-                variant="contained"
-                size="large"
-                fullWidth
-                onClick={() => setOpenRegisterDialog(true)}
-                sx={{
-                  mt: 3,
-                  background: 'linear-gradient(45deg, #2c5282 0%, #3182ce 100%)',
-                  color: '#ffffff',
-                  fontWeight: 600,
-                  borderRadius: 2,
-                  textTransform: 'none',
-                  boxShadow: '0 4px 12px rgba(49, 130, 206, 0.2)',
-                  '&:hover': {
-                    background: 'linear-gradient(45deg, #2a4365 0%, #2b6cb0 100%)',
-                    boxShadow: '0 6px 16px rgba(49, 130, 206, 0.3)',
-                  },
-                }}
-              >
-                Register Now
-              </Button>
-            </Grid>
           </Grid>
+
+          <Divider sx={{ my: 2 }} />
+
+          {/* Organizer Info */}
+          <Box>
+            <Typography variant="h6" sx={{ mb: 2 }}>
+              Organizer Information
+            </Typography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              <Typography variant="body2">
+                <strong>{event.organizerName}</strong>
+              </Typography>
+              {event.contactEmail && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <EmailIcon /> {event.contactEmail}
+                </Box>
+              )}
+              {event.phoneNumber && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <PhoneIcon /> {event.phoneNumber}
+                </Box>
+              )}
+              {event.socialMediaLink && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <FacebookIcon />
+                  <Button
+                    href={event.socialMediaLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    sx={{ textTransform: 'none', p: 0 }}
+                  >
+                    Visit Social Media Page
+                  </Button>
+                </Box>
+              )}
+            </Box>
+          </Box>
         </CardContent>
       </Card>
-
-      {/* Register Dialog */}
-      <Dialog
-        open={openRegisterDialog}
-        onClose={() => setOpenRegisterDialog(false)}
-        maxWidth="sm"
-        fullWidth
-      >
-        <DialogContent sx={{ p: 0 }}>
-          <RegisterForm />
-        </DialogContent>
-      </Dialog>
     </Box>
   );
 };
-
-export default EventDetails;
