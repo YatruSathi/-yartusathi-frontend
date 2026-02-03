@@ -46,7 +46,7 @@ const menuItems: MenuItem[] = [
     requiresAuth: true,
   },
   {
-    text: 'Chatbot',
+    text: 'YatruSathi AI',
     icon: <SmartToyIcon />,
     path: '/chatbot',
     requiresAuth: false,
@@ -84,7 +84,7 @@ export function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
     <Box>
       <Box sx={{ p: 2 }}>
         <Typography variant="h6" sx={{ color: '#1a365d', fontWeight: 700 }}>
-          Nepal Tourism
+          YatruSathi
         </Typography>
       </Box>
       <Divider />

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import {
   Box,
   TextField,
@@ -23,6 +24,7 @@ interface Message {
   text: string;
   timestamp: string;
   avatar?: string;
+  isThinking?: boolean;
 }
 
 interface Conversation {
@@ -37,53 +39,80 @@ function Chatbox() {
     {
       id: '1',
       sender: 'bot',
-      text: 'Hi! Welcome to our chat. How can I help you today?',
-      timestamp: '10:30 AM',
-    },
-    {
-      id: '2',
-      sender: 'user',
-      text: 'I would like to know about event planning.',
-      timestamp: '10:31 AM',
-    },
-    {
-      id: '3',
-      sender: 'bot',
-      text: 'Great! I can help you with event planning. What type of event are you interested in?',
-      timestamp: '10:32 AM',
+      text: 'Hi! I am YatruSathi AI, your personal travel assistant for Nepal. How can I help you today?',
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     },
   ]);
 
   const [inputValue, setInputValue] = useState('');
   const [selectedChat, setSelectedChat] = useState('1');
+  const [isBotThinking, setIsBotThinking] = useState(false);
 
   const conversations: Conversation[] = [
-    { id: '1', name: 'Support Team', avatar: '👨‍💼', lastMessage: 'How can I help you?' },
-    { id: '2', name: 'Events Bot', avatar: '📅', lastMessage: 'Tell me about events...' },
-    { id: '3', name: 'Travel Assistant', avatar: '✈️', lastMessage: "Let's plan your trip!" },
+    { id: '1', name: 'YatruSathi AI', avatar: '🤖', lastMessage: 'Namaste! Ask me anything!' },
+    { id: '2', name: 'Support Team', avatar: '👨‍💼', lastMessage: 'How can I help you?' },
   ];
 
-  const handleSendMessage = () => {
-    if (inputValue.trim()) {
-      const newMessage: Message = {
-        id: String(messages.length + 1),
+  const handleSendMessage = async () => {
+    if (inputValue.trim() && !isBotThinking) {
+      const userText = inputValue.trim();
+      const userMessage: Message = {
+        id: String(Date.now()),
         sender: 'user',
-        text: inputValue,
+        text: userText,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
-      setMessages([...messages, newMessage]);
+      
+      setMessages(prev => [...prev, userMessage]);
       setInputValue('');
+      setIsBotThinking(true);
 
-      // Simulate bot response
-      setTimeout(() => {
-        const botResponse: Message = {
-          id: String(messages.length + 2),
-          sender: 'bot',
-          text: 'Thanks for your message! How else can I assist you?',
-          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        };
-        setMessages(prev => [...prev, botResponse]);
-      }, 1000);
+      // Add a temporary "thinking" message
+      const thinkingId = String(Date.now() + 1);
+      const thinkingMessage: Message = {
+        id: thinkingId,
+        sender: 'bot',
+        text: '...',
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        isThinking: true
+      };
+      setMessages(prev => [...prev, thinkingMessage]);
+
+      try {
+        if (selectedChat === '1') {
+          // Call the YatruSathi AI Flask Backend
+          const response = await axios.get(`http://127.0.0.1:5000/get`, {
+            params: { msg: userText }
+          });
+
+          const botReply = response.data.reply;
+
+          // Replace thinking message with actual reply
+          setMessages(prev => prev.map(msg => 
+            msg.id === thinkingId 
+              ? { ...msg, text: botReply, isThinking: false } 
+              : msg
+          ));
+        } else {
+          // Simulate standard support reply for other chats
+          setTimeout(() => {
+            setMessages(prev => prev.map(msg => 
+              msg.id === thinkingId 
+                ? { ...msg, text: "Our support team is currently offline. Please try our AI assistant!", isThinking: false } 
+                : msg
+            ));
+          }, 1000);
+        }
+      } catch (error) {
+        console.error("AI Chatbot Error:", error);
+        setMessages(prev => prev.map(msg => 
+          msg.id === thinkingId 
+            ? { ...msg, text: "Sorry, I'm having trouble connecting to my brain right now. Is the AI server running?", isThinking: false } 
+            : msg
+        ));
+      } finally {
+        setIsBotThinking(false);
+      }
     }
   };
 
@@ -175,13 +204,13 @@ function Chatbox() {
             gap: 2,
           }}
         >
-          <Avatar sx={{ bgcolor: '#0084ff', fontSize: '20px' }}>👨‍💼</Avatar>
+          <Avatar sx={{ bgcolor: '#FF4B2B', fontSize: '20px' }}>🤖</Avatar>
           <Box>
             <Typography variant="body1" sx={{ fontWeight: 600 }}>
-              Support Team
+              YatruSathi AI
             </Typography>
             <Typography variant="caption" sx={{ color: '#65676b' }}>
-              Active now
+              Powered by StepFun 3.5
             </Typography>
           </Box>
         </Box>
@@ -208,19 +237,29 @@ function Chatbox() {
               }}
             >
               {message.sender === 'bot' && (
-                <Avatar sx={{ bgcolor: '#0084ff', width: 32, height: 32 }}>B</Avatar>
+                <Avatar sx={{ bgcolor: '#FF4B2B', width: 32, height: 32, fontSize: '14px' }}>🤖</Avatar>
               )}
               <Paper
                 sx={{
                   p: '8px 12px',
-                  maxWidth: '60%',
-                  bgcolor: message.sender === 'user' ? '#0084ff' : '#e4e6eb',
-                  color: message.sender === 'user' ? '#fff' : '#000',
+                  maxWidth: '75%',
+                  bgcolor: message.sender === 'user' ? '#0084ff' : '#f0f2f5',
+                  color: message.sender === 'user' ? '#fff' : '#050505',
                   borderRadius: '18px',
                   boxShadow: 'none',
+                  border: message.sender === 'bot' ? '1px solid #e5e5e5' : 'none',
+                  position: 'relative'
                 }}
               >
-                <Typography variant="body2">{message.text}</Typography>
+                {message.isThinking ? (
+                  <Box sx={{ display: 'flex', gap: 0.5, py: 1, px: 0.5 }}>
+                    <Box sx={{ width: 8, height: 8, bgcolor: '#90949c', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both' }} />
+                    <Box sx={{ width: 8, height: 8, bgcolor: '#90949c', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.16s' }} />
+                    <Box sx={{ width: 8, height: 8, bgcolor: '#90949c', borderRadius: '50%', animation: 'bounce 1.4s infinite ease-in-out both', animationDelay: '0.32s' }} />
+                  </Box>
+                ) : (
+                  <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>{message.text}</Typography>
+                )}
                 <Typography
                   variant="caption"
                   sx={{
@@ -228,6 +267,7 @@ function Chatbox() {
                     mt: 0.5,
                     opacity: 0.7,
                     fontSize: '11px',
+                    textAlign: message.sender === 'user' ? 'right' : 'left'
                   }}
                 >
                   {message.timestamp}
