@@ -1,10 +1,2 @@
-import axios from "axios";
-
-const api = axios.create({
-  baseURL: "http://127.0.0.1:8000/api/",
-  headers: {
-    "Content-Type": "application/json",
-  },
-});
-
-export default api;
+// Re-export unified API client from /api/api.ts
+export { default } from "../api/api";

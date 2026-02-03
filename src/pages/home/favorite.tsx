@@ -1,80 +1,121 @@
-import React from 'react';
-import { Box, Typography, Card, CardContent, CardActions, Button, Stack } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { 
+    Box, 
+    Typography, 
+    Grid, 
+    Container, 
+    CircularProgress, 
+    Stack,
+    Button,
+    Fade
+} from '@mui/material';
 import FavoriteIcon from '@mui/icons-material/Favorite';
+import { useNavigate } from 'react-router';
+import { EventCard } from './components/event-card';
+import api from '../../services/api';
 
+interface Event {
+    id: number;
+    title: string;
+    description: string;
+    image?: string;
+}
 
-const initialFavoriteEvents = [
-    {
-        id: 1,
-        title: 'Everest Base Camp Trek',
-        description: 'Experience the breathtaking views of Mount Everest and the Himalayas.',
-        platforms: [
-            { name: 'Website', url: 'https://everesttrek.com' },
-            { name: 'Facebook', url: 'https://facebook.com/everesttrek' },
-            { name: 'WhatsApp', url: 'https://wa.me/1234567890' },
-        ],
-    },
-    {
-        id: 2,
-        title: 'Pokhara Adventure',
-        description: 'Enjoy the serene lakes and adventure sports in Pokhara.',
-        platforms: [
-            { name: 'Website', url: 'https://pokharaadventure.com' },
-            { name: 'Facebook', url: 'https://facebook.com/pokharaadventure' },
-        ],
-    },
-];
-
-
-import IconButton from '@mui/material/IconButton';
+interface FavoriteItem {
+    id: number;
+    event: Event;
+}
 
 function Favorite() {
-    const [favoriteEvents, setFavoriteEvents] = React.useState(initialFavoriteEvents);
+    const [favorites, setFavorites] = useState<FavoriteItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
-    const handleRemoveFavorite = (id: number) => {
-        setFavoriteEvents(events => events.filter(event => event.id !== id));
+    const fetchFavorites = async () => {
+        try {
+            setLoading(true);
+            const response = await api.get<FavoriteItem[]>('favorites/');
+            setFavorites(response.data);
+            setLoading(false);
+        } catch (error) {
+            console.error('Error fetching favorites:', error);
+            setLoading(false);
+        }
     };
 
+    useEffect(() => {
+        fetchFavorites();
+    }, []);
+
+    const handleRemoveFavorite = async (eventId: number) => {
+        try {
+            await api.delete(`favorites/${eventId}/`);
+            setFavorites(prev => prev.filter(item => item.event.id !== eventId));
+        } catch (error) {
+            console.error('Error removing favorite:', error);
+        }
+    };
+
+    if (loading) {
+        return (
+            <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+                <CircularProgress />
+            </Box>
+        );
+    }
+
     return (
-        <Box sx={{ maxWidth: 700, mx: 'auto', p: 3 }}>
-            <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 2 }}>
-                <FavoriteIcon color="error" />
-                <Typography variant="h5" fontWeight={600}>Favorite Events</Typography>
-            </Stack>
-            {favoriteEvents.length === 0 ? (
-                <Typography>No favorite events saved yet.</Typography>
+        <Container maxWidth="lg" sx={{ py: 6 }}>
+            <Box mb={6}>
+                <Stack direction="row" alignItems="center" spacing={2} mb={1}>
+                    <FavoriteIcon color="error" sx={{ fontSize: 40 }} />
+                    <Typography variant="h3" fontWeight={800}>Your Favorites</Typography>
+                </Stack>
+                <Typography variant="body1" color="text.secondary">
+                    All the adventures and cultural experiences you've saved.
+                </Typography>
+            </Box>
+
+            {favorites.length === 0 ? (
+                <Box textAlign="center" py={10} bgcolor="rgba(15, 23, 42, 0.03)" borderRadius={4}>
+                    <Typography variant="h6" color="text.secondary" gutterBottom>
+                        You haven't saved any favorites yet.
+                    </Typography>
+                    <Button 
+                        variant="contained" 
+                        onClick={() => navigate('/events')}
+                        sx={{ mt: 2, borderRadius: 2 }}
+                    >
+                        Explore Events
+                    </Button>
+                </Box>
             ) : (
-                favoriteEvents.map(event => (
-                    <Card key={event.id} sx={{ mb: 3 }}>
-                        <CardContent>
-                            <Stack direction="row" alignItems="center" justifyContent="space-between">
-                                <Box>
-                                    <Typography variant="h6" fontWeight={500}>{event.title}</Typography>
-                                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>{event.description}</Typography>
-                                </Box>
-                                <IconButton color="error" onClick={() => handleRemoveFavorite(event.id)}>
-                                    <FavoriteIcon />
-                                </IconButton>
-                            </Stack>
-                        </CardContent>
-                        <CardActions>
-                            {event.platforms.map(platform => (
-                                <Button
-                                    key={platform.name}
-                                    size="small"
-                                    color="primary"
-                                    href={platform.url}
-                                    target="_blank"
-                                    rel="noopener"
+                <Grid container spacing={3}>
+                    {favorites.map(item => (
+                        <Fade in key={item.id}>
+                            <Grid item xs={12} sm={6} md={4}>
+                                <EventCard
+                                    id={item.event.id}
+                                    title={item.event.title}
+                                    description={item.event.description}
+                                    image={item.event.image || "/default-event.jpg"}
+                                    onViewDetails={(id) => navigate(`/events/${id}`)}
+                                />
+                                <Button 
+                                    fullWidth 
+                                    color="error" 
+                                    variant="outlined" 
+                                    onClick={() => handleRemoveFavorite(item.event.id)}
+                                    sx={{ mt: 1, borderRadius: 2 }}
                                 >
-                                    Join via {platform.name}
+                                    Remove from Favorites
                                 </Button>
-                            ))}
-                        </CardActions>
-                    </Card>
-                ))
+                            </Grid>
+                        </Fade>
+                    ))}
+                </Grid>
             )}
-        </Box>
+        </Container>
     );
 }
 

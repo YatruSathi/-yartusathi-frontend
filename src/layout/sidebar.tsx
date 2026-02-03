@@ -36,13 +36,13 @@ interface SidebarProps {
 }
 
 const menuItems: MenuItem[] = [
-  { text: 'Home', icon: <HomeIcon />, path: '/', requiresAuth: false },
+  { text: 'Home', icon: <HomeIcon />, path: '/home', requiresAuth: false },
   { text: 'Events', icon: <EventIcon />, path: '/events', requiresAuth: false },
-  { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorites', requiresAuth: true },
+  { text: 'Favorites', icon: <FavoriteIcon />, path: '/favorite', requiresAuth: true },
   {
     text: 'Notifications',
     icon: <NotificationsIcon />,
-    path: '/notifications',
+    path: '/notification',
     requiresAuth: true,
   },
   {
@@ -54,7 +54,7 @@ const menuItems: MenuItem[] = [
   {
     text: 'Profile',
     icon: <PersonIcon />,
-    path: '/profile',
+    path: '/user-profile',
     requiresAuth: true,
   },
   {
@@ -70,7 +70,7 @@ export function Sidebar({ mobileOpen, onDrawerToggle }: SidebarProps) {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
-  const isLoggedIn = false; // Replace with actual auth state
+  const isLoggedIn = !!localStorage.getItem('token');
 
   const handleNavigation = (item: MenuItem) => {
     if (item.requiresAuth && !isLoggedIn) {

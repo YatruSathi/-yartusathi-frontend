@@ -1,18 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router';
-import { Box, Button, TextField, Typography, Divider } from '@mui/material';
+import { Box, Button, TextField, Typography, Divider, Alert } from '@mui/material';
 import GoogleIcon from '@mui/icons-material/Google';
 import lumbini from '../../assets/imgs/Lumbini .jpg';
 import manang from '../../assets/imgs/Manang.jpg';
+import api from '../../api/api';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleLogin = async () => {
+    setError('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('auth/login/', {
+        email,
+        password,
+      });
+
+      // Store token in localStorage
+      if (response.data.token) {
+        localStorage.setItem('token', response.data.token);
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        navigate('/home');
+      }
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Box
       sx={{
         minHeight: '100vh',
         display: 'flex',
+        flexDirection: { xs: 'column', md: 'row' },
         bgcolor: '#f8fafc',
       }}
     >
@@ -23,7 +52,8 @@ export const Login: React.FC = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          px: 4,
+          px: { xs: 2, sm: 4 },
+          py: { xs: 4, md: 0 },
         }}
       >
         <Box sx={{ width: '100%', maxWidth: 380 }}>
@@ -39,9 +69,36 @@ export const Login: React.FC = () => {
             Access your account
           </Typography>
 
-          <TextField fullWidth label="Email Address" margin="normal" />
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-          <TextField fullWidth label="Password" type="password" margin="normal" />
+          <TextField
+            fullWidth
+            label="Email Address"
+            margin="normal"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            type="email"
+            required
+          />
+
+          <TextField
+            fullWidth
+            label="Password"
+            type="password"
+            margin="normal"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleLogin();
+              }
+            }}
+          />
 
           <Box textAlign="right" mt={1}>
             <Button size="small" onClick={() => navigate('/forgot-password')}>
@@ -62,9 +119,10 @@ export const Login: React.FC = () => {
                 bgcolor: '#0f4c5c',
               },
             }}
-            onClick={() => navigate('/home')}
+            onClick={handleLogin}
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </Button>
 
           <Divider sx={{ my: 3 }}>OR</Divider>
@@ -107,6 +165,7 @@ export const Login: React.FC = () => {
           justifyContent: 'center',
           gap: 3,
           px: 4,
+          minHeight: { xs: '300px', md: 'auto' },
         }}
       >
         <Box
@@ -114,8 +173,8 @@ export const Login: React.FC = () => {
           src={lumbini}
           alt="Lumbini"
           sx={{
-            width: '55%',
-            height: '70%',
+            width: { xs: '100%', md: '55%' },
+            height: { xs: 'auto', md: '70%' },
             objectFit: 'cover',
             borderRadius: 4,
           }}
@@ -126,8 +185,8 @@ export const Login: React.FC = () => {
           src={manang}
           alt="Manang"
           sx={{
-            width: '30%',
-            height: '55%',
+            width: { xs: '100%', md: '30%' },
+            height: { xs: 'auto', md: '55%' },
             objectFit: 'cover',
             borderRadius: 4,
           }}

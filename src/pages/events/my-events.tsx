@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -7,291 +7,214 @@ import {
   Typography,
   List,
   ListItem,
-  Switch,
-  FormControlLabel,
   Chip,
   Alert,
-  Snackbar,
   Avatar,
+  Container,
+  Grid,
+  Divider,
+  Stack,
+  Tab,
+  Tabs,
+  CircularProgress,
+  IconButton,
+  Paper,
 } from '@mui/material';
-import { CheckCircle, Cancel, CloudUpload, Person } from '@mui/icons-material';
+import { 
+  CheckCircle, 
+  Cancel, 
+  Person, 
+  CalendarMonth, 
+  LocationOn,
+  DeleteOutline
+} from '@mui/icons-material';
 import { useNavigate } from 'react-router';
+import api from '../../services/api';
+import { EventCard } from '../home/components/event-card';
 
-interface Participant {
+interface Booking {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  approved: boolean;
+  event: {
+    id: number;
+    title: string;
+    description: string;
+    image: string;
+    date: string;
+    location: string;
+  };
+  booked_at: string;
+  status: string;
+  ticket_count: number;
 }
 
-interface EventData {
+interface OrganizedEvent {
   id: number;
   title: string;
-  eventType: string;
-  startDate: string;
-  isLive: boolean;
-  isSoldOut: boolean;
-  profileCompleted: boolean;
-  documentUploaded: boolean;
-  participants: Participant[];
-  coverImage?: string;
+  description: string;
+  image: string;
+  date: string;
+  location: string;
+  category: string;
+  participants: any[];
 }
 
-// Mock data with more details
-const mockEvent: EventData = {
-  id: 1,
-  title: 'Mountain Hike 2025',
-  eventType: 'Adventure',
-  startDate: '2025-08-15',
-  isLive: false,
-  isSoldOut: false,
-  profileCompleted: false,
-  documentUploaded: false,
-  coverImage: 'https://example.com/mountain-hike.jpg',
-  participants: [
-    {
-      id: 1,
-      name: 'Aayush Shrestha',
-      email: 'aayush@example.com',
-      phone: '9800000001',
-      approved: false,
-    },
-    { id: 2, name: 'Mina Sharma', email: 'mina@example.com', phone: '9800000002', approved: true },
-  ],
-};
-
-const MyCreatedEvents: React.FC = () => {
+const MyEventsPage: React.FC = () => {
   const navigate = useNavigate();
-  const [event, setEvent] = useState<EventData>(mockEvent);
-  const [doc, setDoc] = useState<File | null>(null);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertMessage, setAlertMessage] = useState('');
+  const [tabValue, setTabValue] = useState(0);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [organizedEvents, setOrganizedEvents] = useState<OrganizedEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const showNotification = (message: string) => {
-    setAlertMessage(message);
-    setShowAlert(true);
-  };
+  useEffect(() => {
+    fetchData();
+  }, []);
 
-  const handleApprove = (id: number) => {
-    setEvent(prev => ({
-      ...prev,
-      participants: prev.participants.map(p => (p.id === id ? { ...p, approved: true } : p)),
-    }));
-    showNotification('Participant approved successfully');
-  };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      // Fetch bookings (user as a traveler)
+      const bookingsRes = await api.get('bookings/');
+      setBookings(bookingsRes.data);
 
-  const handleMakeLive = () => {
-    if (!event.profileCompleted || !event.documentUploaded) {
-      showNotification('Complete your profile and upload the required document first');
-      return;
+      // Fetch organized events (user as an organizer)
+      // For now, let's assume we have an endpoint for this or filter from all events
+      const eventsRes = await api.get('events/');
+      const userData = JSON.parse(localStorage.getItem('user') || '{}');
+      const filtered = eventsRes.data.filter((e: any) => e.created_by?.id === userData.id);
+      setOrganizedEvents(filtered);
+
+      setLoading(false);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load your events. Please try again.");
+      setLoading(false);
     }
-    setEvent(prev => ({ ...prev, isLive: true }));
-    showNotification('Event is now live');
   };
 
-  const handleStopRegistration = () => {
-    setEvent(prev => ({ ...prev, isSoldOut: true }));
-    showNotification('Registration has been closed');
-  };
-
-  const handleDocUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null;
-    if (file) {
-      if (file.size > 5000000) {
-        // 5MB limit
-        showNotification('File size should be less than 5MB');
-        return;
+  const handleCancelBooking = async (id: number) => {
+    if (window.confirm("Are you sure you want to cancel this booking?")) {
+      try {
+        await api.delete(`bookings/${id}/`);
+        setBookings(prev => prev.filter(b => b.id !== id));
+      } catch (err) {
+        alert("Failed to cancel booking.");
       }
-      setDoc(file);
-      setEvent(prev => ({ ...prev, documentUploaded: true }));
-      showNotification('Document uploaded successfully');
     }
   };
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={10}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ maxWidth: 1200, mx: 'auto', py: 4, px: { xs: 2, sm: 3 } }}>
-      <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a365d' }}>
-        My Events
-      </Typography>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
+      <Box mb={6}>
+        <Typography variant="h3" fontWeight={800} gutterBottom>
+          My Travels & Events
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Manage your booked adventures and the events you're organizing.
+        </Typography>
+      </Box>
 
-      <Card
-        sx={{
-          borderRadius: 2,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
-          overflow: 'hidden',
-        }}
-      >
-        <CardContent sx={{ p: { xs: 2, sm: 3 } }}>
-          <Box
-            sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}
-          >
-            <Box>
-              <Typography variant="h5" sx={{ fontWeight: 600, mb: 1 }}>
-                {event.title}
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                <Chip
-                  label={event.eventType}
-                  size="small"
-                  sx={{
-                    backgroundColor: '#f0f7ff',
-                    color: '#2c5282',
-                    fontWeight: 500,
-                  }}
-                />
-                <Typography variant="body2" color="text.secondary">
-                  Starts {new Date(event.startDate).toLocaleDateString()}
-                </Typography>
-              </Box>
-            </Box>
-            <Button
-              variant="outlined"
-              onClick={() => navigate(`/events/${event.id}`)}
-              sx={{
-                borderRadius: 2,
-                textTransform: 'none',
-              }}
-            >
-              View Details
-            </Button>
-          </Box>
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 4 }}>
+        <Tabs value={tabValue} onChange={(_, val) => setTabValue(val)}>
+          <Tab label={`Booked Experiences (${bookings.length})`} sx={{ fontWeight: 700, textTransform: 'none' }} />
+          <Tab label={`Organized by Me (${organizedEvents.length})`} sx={{ fontWeight: 700, textTransform: 'none' }} />
+        </Tabs>
+      </Box>
 
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-              Event Status
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 3 }}>
-              <Chip
-                icon={<CheckCircle />}
-                label={event.isLive ? 'Live' : 'Draft'}
-                color={event.isLive ? 'success' : 'default'}
-                variant="outlined"
-              />
-              <Chip
-                icon={event.isSoldOut ? <Cancel /> : <CheckCircle />}
-                label={event.isSoldOut ? 'Registration Closed' : 'Registration Open'}
-                color={event.isSoldOut ? 'error' : 'success'}
-                variant="outlined"
-              />
-            </Box>
-          </Box>
-
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-              Requirements
-            </Typography>
-            <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={event.profileCompleted}
-                    onChange={() =>
-                      setEvent(prev => ({ ...prev, profileCompleted: !prev.profileCompleted }))
-                    }
-                  />
-                }
-                label="Profile Completed"
-              />
-              <Box>
-                <Button
-                  variant="outlined"
-                  component="label"
-                  startIcon={<CloudUpload />}
-                  sx={{ borderRadius: 2, textTransform: 'none' }}
-                >
-                  Upload Document
-                  <input type="file" hidden onChange={handleDocUpload} accept=".pdf,.doc,.docx" />
-                </Button>
-                {doc && (
-                  <Typography variant="body2" color="success.main" sx={{ mt: 1 }}>
-                    ✓ {doc.name}
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-          </Box>
-
-          <Box sx={{ mb: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 600 }}>
-              Participants ({event.participants.length})
-            </Typography>
-            <List sx={{ bgcolor: '#f8fafc', borderRadius: 2 }}>
-              {event.participants.map(user => (
-                <ListItem
-                  key={user.id}
-                  divider
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    py: 2,
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ bgcolor: '#2c5282' }}>
-                      <Person />
-                    </Avatar>
-                    <Box>
-                      <Typography variant="subtitle1" sx={{ fontWeight: 500 }}>
-                        {user.name}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {user.email} • {user.phone}
-                      </Typography>
-                    </Box>
+      {tabValue === 0 && (
+        <Grid container spacing={3}>
+          {bookings.length === 0 ? (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 8, textAlign: 'center', bgcolor: 'rgba(15, 23, 42, 0.02)', borderRadius: 4 }}>
+                <CalendarMonth sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary">No bookings yet</Typography>
+                <Button variant="contained" onClick={() => navigate('/events')} sx={{ mt: 2 }}>Explore Adventures</Button>
+              </Paper>
+            </Grid>
+          ) : (
+            bookings.map((booking) => (
+              <Grid item xs={12} key={booking.id}>
+                <Card sx={{ borderRadius: 4, display: 'flex', flexDirection: { xs: 'column', md: 'row' }, overflow: 'hidden' }}>
+                  <Box sx={{ width: { xs: '100%', md: 300 }, height: 200 }}>
+                    <img 
+                      src={booking.event.image || '/placeholder.jpg'} 
+                      alt={booking.event.title} 
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                    />
                   </Box>
-                  {!user.approved ? (
-                    <Button
-                      variant="contained"
-                      onClick={() => handleApprove(user.id)}
-                      sx={{
-                        borderRadius: 2,
-                        textTransform: 'none',
-                        bgcolor: '#2c5282',
-                        '&:hover': { bgcolor: '#1a365d' },
-                      }}
-                    >
-                      Approve
-                    </Button>
-                  ) : (
-                    <Chip label="Approved" color="success" size="small" icon={<CheckCircle />} />
-                  )}
-                </ListItem>
-              ))}
-            </List>
-          </Box>
+                  <CardContent sx={{ flex: 1, p: 3 }}>
+                    <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                      <Box>
+                        <Typography variant="h5" fontWeight={800} gutterBottom>{booking.event.title}</Typography>
+                        <Stack direction="row" spacing={2} mb={2}>
+                          <Box display="flex" alignItems="center" gap={0.5}>
+                            <CalendarMonth fontSize="small" color="action" />
+                            <Typography variant="body2">{new Date(booking.event.date).toLocaleDateString()}</Typography>
+                          </Box>
+                          <Box display="flex" alignItems="center" gap={0.5}>
+                            <LocationOn fontSize="small" color="action" />
+                            <Typography variant="body2">{booking.event.location}</Typography>
+                          </Box>
+                        </Stack>
+                        <Chip 
+                          label={`Confirmed for ${booking.ticket_count} traveler(s)`} 
+                          color="success" 
+                          size="small" 
+                          icon={<CheckCircle />} 
+                          sx={{ fontWeight: 600 }}
+                        />
+                      </Box>
+                      <Stack direction="row" spacing={1}>
+                        <Button variant="outlined" onClick={() => navigate(`/events/${booking.event.id}`)}>Details</Button>
+                        <IconButton color="error" onClick={() => handleCancelBooking(booking.id)}>
+                          <DeleteOutline />
+                        </IconButton>
+                      </Stack>
+                    </Stack>
+                  </CardContent>
+                </Card>
+              </Grid>
+            ))
+          )}
+        </Grid>
+      )}
 
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              variant="contained"
-              color="success"
-              onClick={handleMakeLive}
-              disabled={event.isLive}
-              sx={{ borderRadius: 2, textTransform: 'none' }}
-            >
-              Make Event Live
-            </Button>
-            <Button
-              variant="outlined"
-              color="error"
-              onClick={handleStopRegistration}
-              disabled={event.isSoldOut}
-              sx={{ borderRadius: 2, textTransform: 'none' }}
-            >
-              Stop Registration
-            </Button>
-          </Box>
-        </CardContent>
-      </Card>
-
-      <Snackbar open={showAlert} autoHideDuration={4000} onClose={() => setShowAlert(false)}>
-        <Alert onClose={() => setShowAlert(false)} severity="success" sx={{ width: '100%' }}>
-          {alertMessage}
-        </Alert>
-      </Snackbar>
-    </Box>
+      {tabValue === 1 && (
+        <Grid container spacing={3}>
+          {organizedEvents.length === 0 ? (
+            <Grid item xs={12}>
+              <Paper sx={{ p: 8, textAlign: 'center', bgcolor: 'rgba(15, 23, 42, 0.02)', borderRadius: 4 }}>
+                <Person sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+                <Typography variant="h6" color="text.secondary">You haven't created any events</Typography>
+                <Button variant="contained" onClick={() => navigate('/events/create')} sx={{ mt: 2 }}>Create Your First Event</Button>
+              </Paper>
+            </Grid>
+          ) : (
+            organizedEvents.map((event) => (
+              <Grid item xs={12} sm={6} md={4} key={event.id}>
+                <EventCard
+                  id={event.id}
+                  title={event.title}
+                  description={event.description}
+                  image={event.image}
+                  category={event.category}
+                  onViewDetails={() => navigate(`/events/${event.id}`)}
+                />
+              </Grid>
+            ))
+          )}
+        </Grid>
+      )}
+    </Container>
   );
 };
 
-export default MyCreatedEvents;
+export default MyEventsPage;

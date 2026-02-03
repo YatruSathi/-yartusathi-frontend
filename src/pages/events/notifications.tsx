@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -13,6 +13,11 @@ import {
   Menu,
   MenuItem,
   Button,
+  Container,
+  Paper,
+  Stack,
+  CircularProgress,
+  Fade,
 } from '@mui/material';
 import {
   CheckCircle,
@@ -20,203 +25,196 @@ import {
   MoreVert,
   NotificationsActive,
   AccessTime,
+  DeleteOutline,
+  DoneAll,
 } from '@mui/icons-material';
 import { useNavigate } from 'react-router';
+import api from '../../services/api';
 
-// Mock notification data
-interface Notification {
-  id: string;
-  type: 'approval' | 'new_event' | 'reminder';
-  title: string;
-  description: string;
-  eventId?: string;
-  timestamp: string;
-  read: boolean;
+/* ================= TYPES ================= */
+interface NotificationData {
+  id: number;
+  message: string;
+  created_at: string;
+  is_read: boolean;
+  type?: 'approval' | 'new_event' | 'reminder';
 }
 
-const mockNotifications: Notification[] = [
-  {
-    id: '1',
-    type: 'approval',
-    title: 'Event Registration Approved',
-    description: 'Your registration for Mountain Hike 2025 has been approved.',
-    eventId: '123',
-    timestamp: '2025-07-24T10:30:00',
-    read: false,
-  },
-  {
-    id: '2',
-    type: 'new_event',
-    title: 'New Event in Your Interest',
-    description: 'New adventure event: Everest Base Camp Trek 2025 has been added.',
-    eventId: '124',
-    timestamp: '2025-07-23T15:45:00',
-    read: false,
-  },
-  {
-    id: '3',
-    type: 'reminder',
-    title: 'Upcoming Event Reminder',
-    description: 'Your event Mountain Hike 2025 starts in 3 days.',
-    eventId: '123',
-    timestamp: '2025-07-23T09:00:00',
-    read: true,
-  },
-  {
-    id: '4',
-    type: 'new_event',
-    title: 'New Event Added',
-    description: 'New cultural event: Kathmandu Heritage Walk has been added.',
-    eventId: '125',
-    timestamp: '2025-07-22T14:20:00',
-    read: true,
-  },
-];
-
+/* ================= COMPONENT ================= */
 export const Notification: React.FC = () => {
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
+  const [notifications, setNotifications] = useState<NotificationData[]>([]);
+  const [loading, setLoading] = useState(true);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-  const [selectedNotification, setSelectedNotification] = useState<string | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(null);
 
-  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, notificationId: string) => {
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get<NotificationData[]>('notifications/');
+      setNotifications(response.data);
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMenuClick = (event: React.MouseEvent<HTMLElement>, id: number) => {
     setAnchorEl(event.currentTarget);
-    setSelectedNotification(notificationId);
+    setSelectedId(id);
   };
 
   const handleMenuClose = () => {
     setAnchorEl(null);
-    setSelectedNotification(null);
+    setSelectedId(null);
   };
 
-  const handleMarkAsRead = () => {
-    if (selectedNotification) {
-      setNotifications(prevNotifications =>
-        prevNotifications.map(notification =>
-          notification.id === selectedNotification ? { ...notification, read: true } : notification
-        )
+  const handleMarkAsRead = async () => {
+    if (!selectedId) return;
+    try {
+      await api.patch(`notifications/${selectedId}/`, { is_read: true });
+      setNotifications(prev =>
+        prev.map(n => (n.id === selectedId ? { ...n, is_read: true } : n))
       );
+    } catch (error) {
+      console.error('Error marking as read:', error);
     }
     handleMenuClose();
   };
 
-  const handleDelete = () => {
-    if (selectedNotification) {
-      setNotifications(prevNotifications =>
-        prevNotifications.filter(notification => notification.id !== selectedNotification)
-      );
+  const handleDelete = async () => {
+    if (!selectedId) return;
+    try {
+      await api.delete(`notifications/${selectedId}/`);
+      setNotifications(prev => prev.filter(n => n.id !== selectedId));
+    } catch (error) {
+      console.error('Error deleting notification:', error);
     }
     handleMenuClose();
   };
 
-  const getNotificationIcon = (type: string) => {
+  const getNotificationIcon = (type?: string) => {
     switch (type) {
-      case 'approval':
-        return <CheckCircle color="success" />;
-      case 'new_event':
-        return <EventAvailable color="primary" />;
-      case 'reminder':
-        return <AccessTime color="warning" />;
-      default:
-        return <NotificationsActive />;
+      case 'approval': return <CheckCircle color="success" />;
+      case 'new_event': return <EventAvailable color="primary" />;
+      case 'reminder': return <AccessTime color="warning" />;
+      default: return <NotificationsActive color="primary" />;
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
-  };
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" py={10}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', py: 4, px: { xs: 2, sm: 3 } }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4" gutterBottom sx={{ fontWeight: 600, color: '#1a365d' }}>
-          Notifications
-        </Typography>
+    <Container maxWidth="md" sx={{ py: 6 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', mb: 4 }}>
+        <Box>
+          <Typography variant="h3" fontWeight={800} gutterBottom>
+            Notifications
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Stay updated with your latest travel activities.
+          </Typography>
+        </Box>
         {unreadCount > 0 && (
           <Chip
-            label={`${unreadCount} unread`}
+            label={`${unreadCount} New`}
             color="primary"
-            size="small"
-            sx={{ fontWeight: 500 }}
+            sx={{ fontWeight: 700, borderRadius: 2, px: 1 }}
           />
         )}
       </Box>
 
-      <List sx={{ bgcolor: 'background.paper', borderRadius: 2, boxShadow: 1 }}>
-        {notifications.map((notification, index) => (
-          <React.Fragment key={notification.id}>
-            {index > 0 && <Divider component="li" />}
-            <ListItem
-              alignItems="flex-start"
-              sx={{
-                bgcolor: notification.read ? 'inherit' : 'action.hover',
-                '&:hover': { bgcolor: 'action.hover' },
-              }}
-            >
-              <ListItemAvatar>
-                <Avatar sx={{ bgcolor: 'transparent' }}>
-                  {getNotificationIcon(notification.type)}
-                </Avatar>
-              </ListItemAvatar>
-              <ListItemText
-                primary={
-                  <Box
-                    sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      {notifications.length === 0 ? (
+        <Paper sx={{ p: 10, textAlign: 'center', borderRadius: 4, bgcolor: 'rgba(15, 23, 42, 0.02)', border: '1px dashed', borderColor: 'divider' }}>
+          <NotificationsActive sx={{ fontSize: 60, color: 'text.disabled', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary">
+            Your inbox is empty
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            We'll notify you when something exciting happens!
+          </Typography>
+        </Paper>
+      ) : (
+        <Paper sx={{ borderRadius: 4, overflow: 'hidden' }}>
+          <List sx={{ p: 0 }}>
+            {notifications.map((notification, index) => (
+              <Fade in key={notification.id} timeout={300 + index * 100}>
+                <Box>
+                  {index > 0 && <Divider />}
+                  <ListItem
+                    sx={{
+                      py: 3,
+                      px: { xs: 2, md: 4 },
+                      bgcolor: notification.is_read ? 'transparent' : 'rgba(59, 130, 246, 0.04)',
+                      '&:hover': { bgcolor: 'rgba(15, 23, 42, 0.02)' },
+                      transition: 'background-color 0.2s',
+                    }}
+                    secondaryAction={
+                      <IconButton edge="end" onClick={e => handleMenuClick(e, notification.id)}>
+                        <MoreVert />
+                      </IconButton>
+                    }
                   >
-                    <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                      {notification.title}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      {formatDate(notification.timestamp)}
-                    </Typography>
-                  </Box>
-                }
-                secondary={
-                  <Box sx={{ mt: 1 }}>
-                    <Typography variant="body2" color="text.secondary" paragraph>
-                      {notification.description}
-                    </Typography>
-                    {notification.eventId && (
-                      <Button
-                        size="small"
-                        onClick={() => navigate(`/events/${notification.eventId}`)}
-                        sx={{ textTransform: 'none', mt: 1 }}
-                      >
-                        View Event
-                      </Button>
-                    )}
-                  </Box>
-                }
-              />
-              <IconButton
-                edge="end"
-                aria-label="more"
-                onClick={e => handleMenuClick(e, notification.id)}
-              >
-                <MoreVert />
-              </IconButton>
-            </ListItem>
-          </React.Fragment>
-        ))}
-      </List>
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: 'white', boxShadow: 1 }}>
+                        {getNotificationIcon(notification.type)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
+                          <Typography variant="subtitle1" fontWeight={notification.is_read ? 600 : 700}>
+                            {notification.type === 'approval' ? 'Registration Approved' : 'New Update'}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {new Date(notification.created_at).toLocaleDateString()}
+                          </Typography>
+                        </Stack>
+                      }
+                      secondary={
+                        <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                          {notification.message}
+                        </Typography>
+                      }
+                    />
+                  </ListItem>
+                </Box>
+              </Fade>
+            ))}
+          </List>
+        </Paper>
+      )}
 
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+        PaperProps={{
+          sx: { borderRadius: 2, minWidth: 180, boxShadow: 10 }
+        }}
+      >
         <MenuItem onClick={handleMarkAsRead}>
-          Mark as{' '}
-          {selectedNotification && notifications.find(n => n.id === selectedNotification)?.read
-            ? 'unread'
-            : 'read'}
+          <DoneAll fontSize="small" sx={{ mr: 1.5 }} />
+          Mark as read
         </MenuItem>
-        <MenuItem onClick={handleDelete}>Delete notification</MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}>
+          <DeleteOutline fontSize="small" sx={{ mr: 1.5 }} />
+          Delete
+        </MenuItem>
       </Menu>
-    </Box>
+    </Container>
   );
 };
